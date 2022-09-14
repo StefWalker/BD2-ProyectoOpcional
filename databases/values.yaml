@@ -1,0 +1,70 @@
+  # -- Pasos abstractos
+  # Eliminar el contenido de la carpeta "templates"
+  # Ingresar las dependencias de las bases de datos (Chart.yaml)
+  # Cambiar los valores necesarios del template de las bases de datos para que sean visibles en Prometheus (values.yaml)
+  # -- Lineas de comando
+  # helm repo update -> actualiza todos los repositorios
+  # helm repo update bitnami -> actualiza el repositorio de bitnami
+  # helm search repo <base de datos a buscar>  -> busca la info de la base de datos
+  # helm dependency update -> descarga los archivos comprimidos de las bases de datos dentro de la carpeta desiganada
+  # helm template . -> render de la app con los nuevos valores
+  # helm install databases databases -> instalar el nuevo helm chart "databases" en la carpeta "databases"
+  
+  enablePostgreSQL: true
+  enableMariaDB: true
+  enableMongoDB: false
+  #enableECKOperator: true
+  #enableElasticsearch: true
+  #enableElasticsearchExporter: true
+# -- Cambios a los valores de la base de datos PostgreSQL
+  postgresql:
+    auth: # Autentificacion
+      database: "postgresql" # Nombre de la base de datos
+    metrics: # Analisis de metricas
+      enabled: true 
+      serviceMonitor: # Habilitar el servicio de monitoreo
+        enabled: true
+
+# -- Cambios a los valores de la base de datos MariaDB
+# MUST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  :c
+# docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql
+  mariadb:
+    image: 
+      pullSecrets: [mariadb-secret]
+      debug: true
+    architecture: replication
+    auth:
+      existingSecret: mariadb-secret
+    primary: 
+      name: primary
+    secondary:
+      replicaCount: 2
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+
+# -- Cambios a los valores de la base de datos MongoDB
+  mongodb:
+    architecture: replicaset # Especificacion de la arquitectura de la base de datos (replicaset o standalone)
+    useStatefulSet: true
+    auth: # Autentificacion
+     enabled: false # No pide credenciales
+    replicaCount: 3 # Cantidad de replicas a utilizar
+    metrics: # Analisis de metricas
+     enabled: true
+     serviceMonitor: # Habilitar el servicio de monitoreo
+       enabled: true
+
+  #elasticsearch:
+  #  metrics:
+  #    enabled: true
+  #    serviceMonitor:
+  #      enabled: true
+  #eck-operator:
+  #  namespaces: [default]
+  #  operator-namespace: default
+  #prometheus-elasticsearch-exporter:
+  #  serviceMonitor:
+  #    enabled: true
+  
