@@ -11,11 +11,11 @@
   # helm install databases databases -> instalar el nuevo helm chart "databases" en la carpeta "databases"
   
   enablePostgreSQL: true
-  enableMariaDB: true
-  enableMongoDB: false
-  #enableECKOperator: true
-  #enableElasticsearch: true
-  #enableElasticsearchExporter: true
+  enableMariaDB: false
+  enableMongoDB: true
+  enableECKOperator: false
+  enableElasticsearch: true
+  enableElasticsearchExporter: false
 # -- Cambios a los valores de la base de datos PostgreSQL
   postgresql:
     auth: # Autentificacion
@@ -56,15 +56,53 @@
      serviceMonitor: # Habilitar el servicio de monitoreo
        enabled: true
 
-  #elasticsearch:
-  #  metrics:
-  #    enabled: true
-  #    serviceMonitor:
-  #      enabled: true
-  #eck-operator:
-  #  namespaces: [default]
-  #  operator-namespace: default
-  #prometheus-elasticsearch-exporter:
-  #  serviceMonitor:
-  #    enabled: true
+# -- Cambios a los valores de la base de datos Elasticsearch
+  elasticsearch:
+    # Configuracion del nodo master
+    master: 
+      # Numero de replicas definidas para el master
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "2Mi"
+          cpu: "125m"
+    # Configuracion del nodo de datos
+    data: 
+      # Numero de replicas definidas para almacenar los datos
+      replicaCount: 3
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo procesador de datos
+    ingest:
+      # Numero de replicas definidas para el procesador de datos
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo coordinador
+    coordinating:
+      # Numero de replicas definidas para el coordinador
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    metrics:  # Habilitar el servicio de monitoreo
+      enabled: true
+      serviceMonitor:
+        enabled: true
+
+# -- Cambios a los valores del operador de Elasticsearch
+  eck-operator:
+    nameOverride: "eck-operator"
+    fullnameOverride: "eck-operator"
+    managedNamespaces: []
+
+# -- Cambios a los valores del exportador de datos de Elasticsearch
+  prometheus-elasticsearch-exporter:
+    serviceMonitor:
+      enabled: true
   

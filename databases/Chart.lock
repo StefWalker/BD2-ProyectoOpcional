@@ -8,5 +8,14 @@ dependencies:
 - name: mariadb
   repository: https://charts.bitnami.com/bitnami
   version: 11.3.0
-digest: sha256:883dac826c14607ed92435a63c1a924fdc3fcd0f22b9615281531baa1f658f79
-generated: "2022-09-11T16:43:37.8157068-06:00"
+- name: elasticsearch
+  repository: https://charts.bitnami.com/bitnami
+  version: 19.3.0
+- name: eck-operator
+  repository: https://helm.elastic.co
+  version: 2.4.0
+- name: prometheus-elasticsearch-exporter
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 4.14.0
+digest: sha256:79649eb57563e21dfaf0a0183ddf343dda1728877d84bd7cd5c6d8655b8ae83b
+generated: "2022-09-17T13:42:58.2927741-06:00"

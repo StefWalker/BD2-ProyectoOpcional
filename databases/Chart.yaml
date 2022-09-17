@@ -36,12 +36,15 @@ dependencies:
   version: "11.3.0"
   repository: "https://charts.bitnami.com/bitnami"
   condition: enableMariaDB
-#- name: elasticsearch
-#  version: "19.3.0"
-#  repository: "https://charts.bitnami.com/bitnami"
-#- name: eck-operator    
-#  version: "2.4.0"
-#  repository: "https://helm.elastic.co"
-#- name: prometheus-elasticsearch-exporter    
-#  version: "4.14.0"
-#  repository: "https://prometheus-community.github.io/helm-charts"
+- name: elasticsearch
+  version: "19.3.0"
+  repository: "https://charts.bitnami.com/bitnami"
+  condition: enableElasticsearch
+- name: eck-operator    
+  version: "2.4.0"
+  repository: "https://helm.elastic.co"
+  condition: enableECKOperator 
+- name: prometheus-elasticsearch-exporter    
+  version: "4.14.0"
+  repository: "https://prometheus-community.github.io/helm-charts"
+  condition: enableElasticsearchExporter
