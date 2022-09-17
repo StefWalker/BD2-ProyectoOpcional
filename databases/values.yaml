@@ -25,9 +25,7 @@
       serviceMonitor: # Habilitar el servicio de monitoreo
         enabled: true
 
-# -- Cambios a los valores de la base de datos MariaDB
-# MUST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  :c
-# docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql
+# -- Cambios a los valores de la base de datos MariaD
   mariadb:
     image: 
       pullSecrets: [mariadb-secret]
@@ -105,4 +103,3 @@
   prometheus-elasticsearch-exporter:
     serviceMonitor:
       enabled: true
-  
