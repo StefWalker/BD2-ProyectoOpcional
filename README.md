@@ -96,7 +96,7 @@ Sin embargo, si se instalan directamente, las bases de datos no tendrán las con
   enableMariaDB: true
   enableMongoDB: true
   enableElasticsearch: true
-  enableECKOperator: true
+  enableECKOperator: false
   enableElasticsearchExporter: true
 ```
 
@@ -161,7 +161,7 @@ Dentro de la configuración de la base de datos MongoDB, se cambió la arquitect
        enabled: true
 ```
 
-Por último, la base de datos Elascticsearch se configuró los recursos del ordenador a utilizar por cada réplica (un máster, tres nodos de datos, un coordinador y un procesador de datos), en este caso, se optó por configurarlo a un consumo de 1Mb excepto el máster, el cual usa Mb.  
+Por último, la base de datos Elascticsearch se configuró los recursos del ordenador a utilizar por cada réplica (un máster, tres nodos de datos, un coordinador y un procesador de datos), en este caso, se optó por configurarlo a un consumo de 1Mb excepto el máster, el cual usa 2 Mb.  
 
 ```
   elasticsearch:
@@ -231,7 +231,8 @@ http://monitoring-kube-prometheus-prometheus:9090
 Por último, es necesario buscar un tablero "dashboard" para poder ver todas las métricas que Prometheus monitorea en Grafana, cuyo tablero se busca uno apropiado con los datos requeridos. Dicho tablero es preferible de la misma página de Grafana para poder importarlo con un ID en la sección de "Dashboards". 
 
 ### Conclusiones
-text
+
+El objetivo de esta tarea es adquir el conocimiento, y poder hacer uso de las tecnologias actuales del mercado. Para este trabajo se hizo uso de 4 bases de datos y se aprendio  medinate el uso de Helm Charts para a su isntalacion y configuracion. Ademas la configuracion del los sistemas de monitoreo para ver los datos en las diferentes bases de datos. Se debio hacer uso de gatling para gener los datos para la prueba en las bases de datos pero por motivos de tiempo no se logro este objetivo de hacer las pruebas en las bases de datos.
 
 ### Enlaces
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
