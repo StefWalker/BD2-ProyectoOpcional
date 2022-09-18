@@ -4,7 +4,7 @@
 >> 
 * Max Richard Lee Chung - 2019185076 
 * Miguel Ku Liang - 2019061913
-* c
+* Sebastian Campos Zuniga 2016140230
 * d
 
 
