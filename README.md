@@ -4,8 +4,8 @@
 >> 
 * Max Richard Lee Chung - 2019185076 
 * Miguel Ku Liang - 2019061913
-* Sebastian Campos Zuniga 2016140230
-* d
+* Sebastian Campos Zuniga - 2016140230
+* Dylan Stef Torres Walker - 2018135751
 
 
 ## Guía de instalación
@@ -232,7 +232,7 @@ Por último, es necesario buscar un tablero "dashboard" para poder ver todas las
 
 ### Conclusiones
 
-El objetivo de esta tarea es adquir el conocimiento, y poder hacer uso de las tecnologias actuales del mercado. Para este trabajo se hizo uso de 4 bases de datos y se aprendio  medinate el uso de Helm Charts para a su isntalacion y configuracion. Ademas la configuracion del los sistemas de monitoreo para ver los datos en las diferentes bases de datos. Se debio hacer uso de gatling para gener los datos para la prueba en las bases de datos pero por motivos de tiempo no se logro este objetivo de hacer las pruebas en las bases de datos.
+El objetivo de esta tarea es adquir el conocimiento, y poder hacer uso de las tecnologías actuales del mercado. Para este trabajo se hizo uso de 4 bases de datos y se aprendió mediante el uso de Helm Charts para su instalación y configuración. Además, la configuración del los sistemas de monitoreo para ver el comportamiento en las diferentes bases de datos. Por último, se tuvo que hacer uso de Gatling para gener los datos para las pruebas de las bases de datos pero por motivos de tiempo no se logró dicho objetivo.
 
 ### Enlaces
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
