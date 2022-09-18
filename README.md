@@ -57,6 +57,18 @@ dependencies:
   version: "11.3.0"
   repository: "https://charts.bitnami.com/bitnami"
   condition: enableMariaDB
+- name: elasticsearch
+  version: "19.3.0"
+  repository: "https://charts.bitnami.com/bitnami"
+  condition: enableElasticsearch
+- name: eck-operator    
+  version: "2.4.0"
+  repository: "https://helm.elastic.co"
+  condition: enableECKOperator 
+- name: prometheus-elasticsearch-exporter    
+  version: "4.14.0"
+  repository: "https://prometheus-community.github.io/helm-charts"
+  condition: enableElasticsearchExporter
 ```
 
 Al tener listas las dependencias con los recursos deseados, se debe de hacer un "cd" a cada una de las carpetas generadas para poder ejecutar el siguiente comando, con el fin de "actualizar" las dependencias y que se descarguen los archivos comprimidos como se mencionó anteriormente e instalarlas. 
@@ -77,12 +89,15 @@ cd ..
 helm install monitoring monitoring
 ```
 
-Sin embargo, si se instalan directamente, las bases de datos no tendrán las configuraciones que se desea, por lo que se modificó el archivo values.yaml para dicho aspecto. Se agregaron las variables para habilitar o deshabilitar dicho recurso y habilitar las métricas del servicio de monitoreo para que Prometheus pueda observarlos en la aplicación.
+Sin embargo, si se instalan directamente, las bases de datos no tendrán las configuraciones que se desea, por lo que se modificó el archivo values.yaml para dicho aspecto. Para ello, se agregaron variables para habilitar o deshabilitar dicho recurso y habilitar las métricas del servicio de monitoreo para que Prometheus pueda observarlos y notificar en Grafana.
 
 ```
   enablePostgreSQL: true
   enableMariaDB: true
   enableMongoDB: true
+  enableElasticsearch: true
+  enableECKOperator: true
+  enableElasticsearchExporter: true
 ```
 
 La primera configuración de bases de datos es la de PostgreSQL, en donde únicamente se le agregó el nombre de la base de datos de la autentificación.
@@ -131,7 +146,7 @@ Ya con el Secret ejecutado, se menciona que el Secret a utilizar es el creado y 
         enabled: true
 ```
 
-Por úlimo, la base de datos MongoDB, se cambió la arquitectura, al igual que MariaDB, a una de tipo replicación para poder crear tres réplicas. La autentificación se puede deshabilitar para facilitar el acceso a la base de datos sin contraseña alguna. 
+Dentro de la configuración de la base de datos MongoDB, se cambió la arquitectura, al igual que MariaDB, a una de tipo replicación para poder crear tres réplicas. La autentificación se puede deshabilitar para facilitar el acceso a la base de datos sin contraseña alguna. 
 
 ```
   mongodb:
@@ -146,6 +161,63 @@ Por úlimo, la base de datos MongoDB, se cambió la arquitectura, al igual que M
        enabled: true
 ```
 
+Por último, la base de datos Elascticsearch se configuró los recursos del ordenador a utilizar por cada réplica (un máster, tres nodos de datos, un coordinador y un procesador de datos), en este caso, se optó por configurarlo a un consumo de 1Mb excepto el máster, el cual usa Mb.  
+
+```
+  elasticsearch:
+    # Configuracion del nodo master
+    master: 
+      # Numero de replicas definidas para el master
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "2Mi"
+          cpu: "125m"
+    # Configuracion del nodo de datos
+    data: 
+      # Numero de replicas definidas para almacenar los datos
+      replicaCount: 3
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo procesador de datos
+    ingest:
+      # Numero de replicas definidas para el procesador de datos
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo coordinador
+    coordinating:
+      # Numero de replicas definidas para el coordinador
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    metrics:  # Habilitar el servicio de monitoreo
+      enabled: true
+      serviceMonitor:
+        enabled: true
+```
+
+No obstante, Elasticsearch necesita de un operador y exportador como se muestra a continuación.
+
+```
+# -- Cambios a los valores del operador de Elasticsearch
+  eck-operator:
+    nameOverride: "eck-operator"
+    fullnameOverride: "eck-operator"
+    managedNamespaces: []
+
+# -- Cambios a los valores del exportador de datos de Elasticsearch
+  prometheus-elasticsearch-exporter:
+    serviceMonitor:
+      enabled: true
+```
+
 ### Configuración de herramientas no automatizadas
 #### Grafana
 Configurar Grafana primero es necesario haber instalado el helm chart monitoring para tener un Pod funcional de grafana, en donde se selecciona para poder acceder al enlace con el puerto de Grafana. Al estar en la página, se le solicita un usuario, en donde el usuario predeterminado es "admin" y la contraseña se adquiere dentro del Secret "monitoring-grafana-admin", el cual es generado automáticamente. 
@@ -157,6 +229,9 @@ http://monitoring-kube-prometheus-prometheus:9090
 ```
 
 Por último, es necesario buscar un tablero "dashboard" para poder ver todas las métricas que Prometheus monitorea en Grafana, cuyo tablero se busca uno apropiado con los datos requeridos. Dicho tablero es preferible de la misma página de Grafana para poder importarlo con un ID en la sección de "Dashboards". 
+
+### Conclusiones
+text
 
 ### Enlaces
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
