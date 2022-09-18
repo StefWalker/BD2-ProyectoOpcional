@@ -234,11 +234,11 @@ Por último, es necesario buscar un tablero "dashboard" para poder ver todas las
 
 El objetivo de esta tarea es adquir el conocimiento, y poder hacer uso de las tecnologías actuales del mercado. Para este trabajo se hizo uso de 4 bases de datos y se aprendió mediante el uso de Helm Charts para su instalación y configuración. Además, la configuración del los sistemas de monitoreo para ver el comportamiento en las diferentes bases de datos. Por último, se tuvo que hacer uso de Gatling para gener los datos para las pruebas de las bases de datos pero por motivos de tiempo no se logró dicho objetivo.
 
-### Enlaces
+### Referencias
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
-* [MariaDB](https://github.com/bitnami/charts/tree/master/bitnami/mariadb/)
-* [MongoDB](https://github.com/bitnami/charts/tree/master/bitnami/mongodb/)
-* [PostgreSQL](https://github.com/bitnami/charts/tree/master/bitnami/postgresql/)
-* [Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch/)
-* [Elasticsearch-operator](https://www.elastic.co/guide/en/cloud-on-k8s/2.4/k8s-overview.html)
-* [Elasticsearch-exporter](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-elasticsearch-exporter/values.yaml)
+* Bitnami - MariaDB (2022) Github. Recuperdo de [MariaDB](https://github.com/bitnami/charts/tree/master/bitnami/mariadb/)
+* Bitnami - MongoDb (2022) Github. Recuperado de [MongoDB](https://github.com/bitnami/charts/tree/master/bitnami/mongodb/)
+* Bitnami - PostgresSQL (2022) Github. Recuperado de [PostgreSQL](https://github.com/bitnami/charts/tree/master/bitnami/postgresql/)
+* Bitnami - Elasticsearch (2022) Github. Recuperado de [Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch/)
+* Elastic (2022). Elastic Cloud on Kubernetes [2.4]. Recuperado de [Elasticsearch-operator](https://www.elastic.co/guide/en/cloud-on-k8s/2.4/k8s-overview.html)
+* Prometheus-community - Prometheus elasticsearch exporter (2022) Github. Recuperado de [Elasticsearch-exporter](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-elasticsearch-exporter/values.yaml)
