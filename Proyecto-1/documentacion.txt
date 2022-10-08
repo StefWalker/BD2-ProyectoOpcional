@@ -1,0 +1,7 @@
+kubectl apply -f crds.yaml ->  crea los crd
+
+kubectl apply -f operator.yaml  -> crea el eck operator en un namespace que se crea solo
+
+helm install databases databases  -> crea el rabbitmq
+
+elasticsearch.yaml  -> crea elasticsearch y kibana cuando hace el helm install de arriba. Hay que ejecutar los comandos de crds.yaml y operator.yaml para crear estos pods
