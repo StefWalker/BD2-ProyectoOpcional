@@ -5,3 +5,26 @@ kubectl apply -f operator.yaml  -> crea el eck operator en un namespace que se c
 helm install databases databases  -> crea el rabbitmq
 
 elasticsearch.yaml  -> crea elasticsearch y kibana cuando hace el helm install de arriba. Hay que ejecutar los comandos de crds.yaml y operator.yaml para crear estos pods
+
+en el producer.yaml y consumer.yaml cambian miguelku por su username de docker
+
+docker login(si no sirve el login desde lens, usen el cmd de windows y ejecutan los comandos ahí)
+
+en la carpeta producer(solo hace build y push, cambia user por su username de docker):
+docker build -t user/producer .
+docker images
+docker -v run user/producer
+docker push user/producer
+kubectl apply -f producer.yaml
+
+en la carpeta consumer:
+docker build -t user/consumer .
+docker push user/consumer
+
+kubectl port-forward service/databases-rabbitmq 5672:5672
+
+
+en el forward de kibana:
+GET _cat/indices
+
+GET docidx/_search

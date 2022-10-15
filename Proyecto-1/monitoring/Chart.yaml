@@ -24,19 +24,15 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
-#- name: kube-prometheus
-#  version: "8.1.5"
-#  repository: "https://charts.bitnami.com/bitnami"
-#  condition: enableGrafana
-#- name: grafana
-#  version: "8.2.6"
-#  repository: "https://charts.bitnami.com/bitnami"
-#  condition: enablePrometheus
+- name: kube-prometheus
+  version: "8.1.5"
+  repository: "https://charts.bitnami.com/bitnami"
+  condition: enableGrafana
+- name: grafana
+  version: "8.2.6"
+  repository: "https://charts.bitnami.com/bitnami"
+  condition: enablePrometheus
 - name: eck-operator    
   version: "2.3.0"
   repository: "https://helm.elastic.co"
   condition: enableECKOperator
-#- name: kibana    
-#  version: "10.2.5"
-#  repository: "https://charts.bitnami.com/bitnami"
-#  condition: enableKibana

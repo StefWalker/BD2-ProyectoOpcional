@@ -1,14 +1,8 @@
-  #enablePrometheus: false
-  #enableGrafana: false
+  enablePrometheus: true
+  enableGrafana: true
   enableECKOperator: true
-  #enableKibana: true
 
   eck-operator:
     nameOverride: "eck-operator"
     fullnameOverride: "eck-operator"
     managedNamespaces: []
-
- # kibana:
-   # elasticsearch:
-   #   hosts: ["localhost"]
-   #   port: "9200"
