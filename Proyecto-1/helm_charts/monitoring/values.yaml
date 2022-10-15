@@ -1,0 +1,2 @@
+  enablePrometheus: true
+  enableGrafana: true

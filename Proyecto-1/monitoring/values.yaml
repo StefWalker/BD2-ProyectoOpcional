@@ -1,8 +1,0 @@
-  enablePrometheus: true
-  enableGrafana: true
-  enableECKOperator: true
-
-  eck-operator:
-    nameOverride: "eck-operator"
-    fullnameOverride: "eck-operator"
-    managedNamespaces: []

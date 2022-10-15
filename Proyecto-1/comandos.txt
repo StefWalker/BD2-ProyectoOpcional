@@ -1,0 +1,21 @@
+docker login
+cd producer
+docker build -t leemxch/producer
+docker push leemxch/producer
+cd ..
+
+cd consumer
+docker build -t leemxch/consumer
+docker push leemxch/producer
+cd ..
+
+docker images
+
+
+
+// Entrar a la base de datos mariadb
+kubectl port-forward databases-mariadb-0 3305:3306
+
+// Enlace del cambio del SSL de mysql workbench
+https://stackoverflow.com/questions/69769563/how-do-i-disable-the-ssl-requirement-in-mysql-workbench
+
