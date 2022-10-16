@@ -1,8 +1,10 @@
 import time
 import os
 import sys
+import pika
+from datetime import datetime
+from elasticsearch import Elasticsearch
 import hashlib
 import json
-from datetime import datetime
 
 # Buscar como publicar documentos
