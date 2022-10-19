@@ -36,7 +36,3 @@ dependencies:
   version: "19.4.2"
   repository: "https://charts.bitnami.com/bitnami"
   condition: enableElasticsearch
-- name: kibana
-  version: "10.2.5"
-  repository: "https://charts.bitnami.com/bitnami"
-  condition: enableKibana

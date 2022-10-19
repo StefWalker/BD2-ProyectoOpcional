@@ -1,7 +1,6 @@
   enableRabbitMQ: true
   enableMariaDB: true
   enableElasticsearch: true
-  enableKibana: true
 
   rabbitmq:
     auth:
@@ -62,8 +61,3 @@
       enabled: true
       serviceMonitor:
         enabled: true
-
-  kibana:
-    elasticsearch:
-      hosts: ["localhost"]
-      port: "9200"
