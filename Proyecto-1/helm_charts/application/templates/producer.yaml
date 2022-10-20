@@ -31,10 +31,10 @@ spec:
                 key: rabbitmq-password
                 optional: false
           - name: ESENDPOINT
-            value: elasticsearch-es-default
+            value: quickstart-es-default
           - name: ESPASSWORD
             valueFrom:
               secretKeyRef:
-                name: elasticsearch-es-elastic-user
+                name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
