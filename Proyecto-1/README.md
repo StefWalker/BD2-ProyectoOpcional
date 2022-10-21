@@ -16,7 +16,7 @@ Para el desarrollo de este proyecto, se van a implementar dos helm charts princi
 ```
 helm create batabases
 helm create monitoring
-helm create application
+helm create application            # Se comentará más adelante su uso
 ```
 
 Luego de ejecutar los comandos, se debe de eliminar el contenido de la carpeta "templates" de todos los archvios generados para evitar algún problema a la hora de instalar los recursos. En este punto, se debe de gestionar las dependencias de los helm charts de databases y monitoring dentro del archivo Chart.yaml al final del códgio ya proporcionado, el cual se debe de conocer las versión, enlace del repositorio y nombre para poder extraer y descargar como un archivo comprimido los recursos de cada uno. Los repositorios se deben de buscar en Google buscando, como por ejemplo, el repositorio de Bitnami o Elasticsearch. Al conocer el enlace del repositorio, se añade a la libería de helm charts y buscar el nombre del recurso al que se quiera utilizar u actualizar como se muestra en el siguiente bloque de código.
@@ -160,7 +160,7 @@ Por último, la base de datos Elascticsearch se configuró los recursos del orde
         enabled: true
 ```
 
-Además, Elasticsearch necesita de forma básica un clúster y una instancia de Kibana para comunicar con la base de datos como se muestra a continuación, en el cual son aplicados como un modelo básico predefinido dentro de la carpeta de databases.
+Además, Elasticsearch necesita de forma básica un clúster y una instancia de Kibana para comunicar con la base de datos como se muestra a continuación, en el cual son aplicados como un modelo básico predefinido dentro de la carpeta de databases en un archivo único.
 
 ```
 # Deploy an Elasticsearch cluster
@@ -188,18 +188,11 @@ spec:
     name: quickstart
 ```
 
-También, es necesario correr los siguientes comandos para tener localmente las imágenes a utilizar del clúster y la instancia de Kibana
+También, es necesario correr los siguientes comandos para tener localmente las imágenes a utilizar del clúster y la instancia de Kibana.
 
 ```
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.4.3
 docker pull docker.elastic.co/kibana/kibana:8.4.3
-```
-
-Ya con todos los valores definidos y recursos a utilizar se utiliza los siguientes comandos fuera de las carpetas para instalarlas dentro de Kubernetes. 
-
-```
-helm install monitoring monitoring
-helm install database database
 ```
 
 ### Instalación del consumer y producer
