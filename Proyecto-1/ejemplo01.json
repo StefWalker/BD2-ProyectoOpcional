@@ -5,16 +5,16 @@
     "data_sources": [
         {
             "type": "mysql",
-            "name": "people_db",
-            "url": "databases-mariadb-people",
+            "name": "tabla_persona",
+            "url": "databases-mariadb",
             "port": "3306",
             "usuario": "user",
             "password": "user"
         },
         {
             "type": "mysql",
-            "name": "car_db",
-            "url": "databases-mariadb-people",
+            "name": "tabla_carro",
+            "url": "databases-mariadb",
             "port": "3306",
             "usuario": "user",
             "password": "user"
@@ -24,13 +24,13 @@
             "name": "destination_es",
             "url": "https://quickstart-es-http",
             "port": "9200",
-            "usuario": "XXXXXXXXXX",
+            "usuario": "elastic",
             "password": "XXXXXXXXX"
         }
     ],
     "control_data_source": "destination_es",
     "source": {
-        "data_source": "people_db",
+        "data_source": "tabla_persona",
         "expression": "SELECT * FROM persona ORDER BY cedula",
         "grp_size": "100"
     },
