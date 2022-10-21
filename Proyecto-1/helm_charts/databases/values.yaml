@@ -1,6 +1,5 @@
   enableRabbitMQ: true
   enableMariaDB: true
-  enableElasticsearch: true
 
   rabbitmq:
     auth:

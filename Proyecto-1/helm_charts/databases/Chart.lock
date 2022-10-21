@@ -1,12 +1,12 @@
 dependencies:
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 10.3.5
+  version: 11.0.3
 - name: mariadb
   repository: https://charts.bitnami.com/bitnami
-  version: 11.3.1
+  version: 11.3.3
 - name: elasticsearch
   repository: https://charts.bitnami.com/bitnami
-  version: 19.4.2
-digest: sha256:27d6becfacc4f7be989eb3fc0693cb4d2ffb2f8707119ab910c6d49421c9ad8a
-generated: "2022-09-26T21:18:04.24655-06:00"
+  version: 19.4.4
+digest: sha256:31e3fe26bf80f2f573ed83ebb6ca045022469bf74cb0e1bbae5f4c97f18b0329
+generated: "2022-10-20T19:24:43.8028821-06:00"

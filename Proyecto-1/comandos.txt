@@ -19,3 +19,9 @@ kubectl port-forward databases-mariadb-0 3305:3306
 // Enlace del cambio del SSL de mysql workbench
 https://stackoverflow.com/questions/69769563/how-do-i-disable-the-ssl-requirement-in-mysql-workbench
 
+// Enlace de tutoriales de rabbitmq
+https://www.rabbitmq.com/getstarted.html
+
+
+docker pull docker.elastic.co/elasticsearch/elasticsearch:8.4.3
+docker pull docker.elastic.co/kibana/kibana:8.4.3

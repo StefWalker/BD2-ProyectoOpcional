@@ -8,16 +8,16 @@
             "name": "people_db",
             "url": "databases-mariadb-people",
             "port": "3306",
-            "usuario": "XXXXXXX",
-            "password": "XXXXXXX"
+            "usuario": "user",
+            "password": "user"
         },
         {
             "type": "mysql",
             "name": "car_db",
             "url": "databases-mariadb-people",
             "port": "3306",
-            "usuario": "XXXXXX",
-            "password": "XXXXXX"
+            "usuario": "user",
+            "password": "user"
         },
         {
             "type": "elasticsearch",
