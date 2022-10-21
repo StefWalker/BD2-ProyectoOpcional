@@ -160,7 +160,7 @@ Por último, la base de datos Elascticsearch se configuró los recursos del orde
         enabled: true
 ```
 
-Además, Elasticsearch necesita de forma básica un clúster y una instancia de Kibana para comunicar con la base de datos como se muestra a continuación, en el cual son aplicados como un modelo básico predefinido dentro de la carpeta de databases en un archivo único.
+Además, Elasticsearch necesita de forma básica un clúster y una instancia de Kibana para comunicar con la base de datos como se muestra a continuación, en el cual son aplicados como un modelo básico predefinido (template) dentro de la carpeta de databases en un archivo único.
 
 ```
 # Deploy an Elasticsearch cluster
@@ -211,10 +211,7 @@ http://monitoring-kube-prometheus-prometheus:9090
 
 Por último, es necesario buscar un tablero "dashboard" para poder ver todas las métricas que Prometheus monitorea en Grafana, cuyo tablero se busca uno apropiado con los datos requeridos. Dicho tablero es preferible de la misma página de Grafana para poder importarlo con un ID en la sección de "Dashboards". 
 
-## Conclusiones
-text
-
-## Recomendaciones
+## Conclusiones y recomendaciones
 text
 
 ## Referencias
@@ -222,3 +219,4 @@ text
 * Bitnami - MariaDB (2022) Github. Recuperdo de [MariaDB](https://github.com/bitnami/charts/tree/master/bitnami/mariadb/)
 * Bitnami - RabbitMQ (2022) Github. Recuperado de [Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq/)
 * Elastic (2022). Elastic Cloud on Kubernetes [2.4]. Recuperado de [Elasticsearch-operator](https://www.elastic.co/guide/en/cloud-on-k8s/2.4/k8s-overview.html)
+* RabbitMQ (2022). RabbitMQ Tutorials. Recuperado de [RabbitMQ Tutorials](https://www.rabbitmq.com/getstarted.html)
