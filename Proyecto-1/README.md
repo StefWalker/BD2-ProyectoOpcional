@@ -11,7 +11,7 @@
 El programa necesita de la aplicación "Docker" y habilitar el servicio de "Kubernetes" para tener un clúster inicial y básico, llamado "docker-desktop". La aplicación para controlar y monitorear el comportamiento del clúster de Docker se denomina "Lens". Además, se utilizarán tres carpetas para cada uno de los servicios automatizados del proyecto tales como helm_charts, consumer y producer.
 
 ### Instalación de helm_charts 
-Para el desarrollo de este proyecto, se van a implementar dos helm charts principales (databases y monitoring) y una para las aplicaciones implementadas en Docker (application). Dentro del helm chart databases, se utilizó la base de datos MariaDB y Elasticsearch. Dentro del helm chart monitoring, se utilizó Grafana y Prometheus junto con el operador de Elasticsearch (eck-operator). Antes de instalar todos componentes, se debe de ubicar o crear una carpeta cualquiera para luego descargar las dependencias necesarias. Ya con la carpeta seleccionada, se ingresa a la consola de comando y realizar un "cd" a dicha carpeta y ejecutar los siguientes comandos:  
+Para el desarrollo de este proyecto, se van a implementar dos helm charts principales (databases y monitoring) y una para las aplicaciones implementadas en Docker (application, el cual será mencionado posteriormente). Dentro del helm chart databases, se utilizó la base de datos MariaDB y Elasticsearch. Dentro del helm chart monitoring, se utilizó Grafana y Prometheus junto con el operador de Elasticsearch (eck-operator). Antes de instalar todos componentes, se debe de ubicar o crear una carpeta cualquiera para luego descargar las dependencias necesarias. Ya con la carpeta seleccionada, se ingresa a la consola de comando y realizar un "cd" a dicha carpeta y ejecutar los siguientes comandos:  
 
 ```
 helm create batabases
@@ -163,6 +163,7 @@ Por último, la base de datos Elascticsearch se configuró los recursos del orde
 Además, Elasticsearch necesita de forma básica un clúster y una instancia de Kibana para comunicar con la base de datos como se muestra a continuación, en el cual son aplicados como un modelo básico predefinido (template) dentro de la carpeta de databases en un archivo único.
 
 ```
+## elasticsearch.yaml
 # Deploy an Elasticsearch cluster
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
@@ -188,7 +189,7 @@ spec:
     name: quickstart
 ```
 
-También, es necesario correr los siguientes comandos para tener localmente las imágenes a utilizar del clúster y la instancia de Kibana.
+También, es necesario correr los siguientes comandos en la terminal para tener localmente las imágenes a utilizar del clúster y la instancia de Kibana.
 
 ```
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.4.3
@@ -196,8 +197,137 @@ docker pull docker.elastic.co/kibana/kibana:8.4.3
 ```
 
 ### Instalación del consumer y producer
-texto
+Dentro de esta sección, es necesario crear una cuenta en Docker Hub para poder guardar las imágenes de las aplicaciones desarrolladas para el proyecto, el cual se usarán para las aplicaciones de "consumer" y "producer", utilizando lenguaje Python para otorgarles la lógca de recibir mensajes de la cola de RabbitMQ y procesarlas. 
 
+Luego de tener la cuenta habilitada, dentro de la carpeta general, se crearon dos carpetas para las aplicaciones respectivas, en donde cada uno tiene otra carpeta con los datos únicos de configuración de la aplicación de Python y un archivo de configuración "Docker file" para poder publicarlo al Docker Hub (ambos iguales). 
+
+Con respecto al archivo de configuración, se buscó la versión de [Python](https://hub.docker.com/_/python) a utilizar dentro de la aplicación, el cual se selecionó una versión comprimida (slim). Además, se siguieron las recomendaciones dadas por el profesor con la configuración necesaria para poder ejecutar la aplicación.
+
+```
+FROM python:3.10.7-slim-bullseye
+
+WORKDIR /app
+
+COPY app/. .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD [ "python", "-u", "./app.py"]
+```
+
+Por consiguiente, dentro de la carpeta de configuración de Python, tiene un archivo de texto (requirements.txt) con las librerías necesarias para instalarlas de forma automática luego de publicar la aplicación a Docker Hub. Dicha librarías utilizadas son la de pika (para poder enviar o recibir mensajes del servidor a cliente y viceversa) y elasticsearch. 
+
+Luego de crear el archivo de texto, es necesario definir el código fuente de Python para poder conectarlo con la cola de RabbitMQ por medio de variables de entorno, los cuales se comentarán más adelante. También, definir el comportamiento lógico para procesar la información.
+
+```
+DATA = os.getenv('DATAFROMK8S')
+RABBIT_MQ = os.getenv('RABBITMQ')
+RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')
+QUEUE_NAME = os.getenv('RABBITQUEUE')
+```
+
+Además, como se mencionó en la anterior sección sobre la carpeta de "application", es necesario crear modelos predefinidos (al igual que el archivo quickstart de Elasticsearch) del consumer y producer con sus respectivas variables de entorno y sus contraseñas (adquiridas por referencias a los secrets). Las variables de entorno es información guardada en variables que son visibles en todo momento y almacenadas en el sistema. 
+
+```
+# consumer.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  labels:
+    app: consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: <user>/consumer
+        env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITQUEUE
+            value: "queue"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ESINDEX
+            value: docidx
+```
+```
+# producer.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  labels:
+    app: producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer
+        image: <user>/producer
+        env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITQUEUE
+            value: "queue"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+```
+
+Por último, luego de tener los archivos listos para poder publicarlos a la nube, se siguen los siguientes comandos para poder realizarlo desde la terminal, donde el user es el nombre de usuario de Docker. Además, si la ejecución de comandos no sirve en la aplicación Lens, se puede utilizar el Command Prompt para ejecutarlos. 
+
+```
+docker login                        # Inicio de sesión al repositorio de Docker Hub
+docker build -t <user>/producer .   # Construye la imagen
+docker build -t <user>/consummer .  # Construye la imagen
+docker images                       # Permite revisar la lista de imágenes
+docker push <user>/producer         # Publica la imagen al repositorio en la nube
+docker push <user>/consumer         # Publica la imagen al repositorio en la nube
+helm install application application
+```
 
 ### Configuración de herramientas no automatizadas
 #### Grafana
@@ -211,12 +341,32 @@ http://monitoring-kube-prometheus-prometheus:9090
 
 Por último, es necesario buscar un tablero "dashboard" para poder ver todas las métricas que Prometheus monitorea en Grafana, cuyo tablero se busca uno apropiado con los datos requeridos. Dicho tablero es preferible de la misma página de Grafana para poder importarlo con un ID en la sección de "Dashboards". 
 
-## Conclusiones y recomendaciones
-text
+#### Kibana
+El acceso al servicio de Kibana se realiza a partir del puerto expuesto dado por el pod "quickstart-kb-...". Ya dentro de la página redirigida, el sistema solicita una cuenta, en donde el usuario predefinido es "elastic" y la contraseña se obtiene mediante la búsqueda del secreto (secret) "quickstart-es-elastic-user".
+
+#### MariaDB
+MariaDB no tiene una forma de accesar fácilmente a diferencia de otros servicios, por lo que hay que habilitar o exponer el puerto para poder acceder a la base de datos por medio de MySQL Workbench, de esta manera, el siguiente comando habilita dicho espacio.
+
+```
+kubectl port-forward databases-mariadb-0 3305:3306
+```
+
+Dentro del MySQL Workbench, se ingresan los datos del servidor, tales como nombre del servidor, nombre de host (127.0.0.1), puerto (3305), nombre de usuario (root) y contraseña (mariadbpass). Además, se debe de deshabilitar el uso de SSL por medio de la pestaña "Advanced/Others:" y se le agrega useSSL=1. Luego se puede probar la conexión e ingresar a la base de datos.
+
+Luego de habilitar el acceso, se crearon dos tablas simples, una de persona y otra de carro. La tabla de persona tiene las siguientes columnas: identificador primario, nombre y cédula. La tabla de carro tiene las siguientes columnas: identificador primario, color, placa y llave foráneo a la tabla persona. 
+
+## Conclusiones
+La migración de datos entre plataformas es un sistema muy versátil de mensajería que puede ser aplicado a diferentes campos para obtener resultados temporizados, transición de datos y manipulación.
 
 ## Referencias
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
 * Bitnami - MariaDB (2022) Github. Recuperdo de [MariaDB](https://github.com/bitnami/charts/tree/master/bitnami/mariadb/)
 * Bitnami - RabbitMQ (2022) Github. Recuperado de [Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq/)
+* Docker (2022). Docker Hub. Recuperado de [Docker Hub](https://hub.docker.com/)
 * Elastic (2022). Elastic Cloud on Kubernetes [2.4]. Recuperado de [Elasticsearch-operator](https://www.elastic.co/guide/en/cloud-on-k8s/2.4/k8s-overview.html)
+* Elastic - elasticsearch-docker (2017). Can't pull official images. Recuperado de [elasticsearch-docker](https://github.com/elastic/elasticsearch-docker/issues/89) 
+* Elasticsearch (2022). Python Elasticsearch Client. Recuperado de [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/v8.4.3/)
 * RabbitMQ (2022). RabbitMQ Tutorials. Recuperado de [RabbitMQ Tutorials](https://www.rabbitmq.com/getstarted.html)
+* Regolith (2021). How do I disable the SSL requirement in MySQL Workbench? Answer. Recuperado de [Regolith](https://stackoverflow.com/questions/69769563/how-do-i-disable-the-ssl-requirement-in-mysql-workbench
+)
+* Pika (2022). Introduction to Pika. Recuperado de [Pika](https://pika.readthedocs.io/en/stable/)
