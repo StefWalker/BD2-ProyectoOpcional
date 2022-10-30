@@ -1,11 +1,14 @@
-import re
 from flask import Flask, jsonify, request
+from flask_ngrok import run_with_ngrok
+from flask_cors import CORS
+from data import data
 
 app = Flask(__name__)
+CORS(app)
 
-from data import data
+run_with_ngrok(app)
     
-@app.route('/data', methods=["GET"])
+@app.route('/', methods=["GET"])
 def getData():
     return jsonify({"data": data})
 
@@ -33,4 +36,4 @@ def addData():
                     "dato": data})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run()
