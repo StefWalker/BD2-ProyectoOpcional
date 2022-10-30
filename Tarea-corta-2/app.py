@@ -24,9 +24,9 @@ def addData():
         "fecha": request.json['fecha'],
         "hora": request.json['hora'],
         "mensaje": request.json['mensaje'],
-        "ubicación": request.json['ubicación'],
+        "ubicacion": request.json['ubicacion'],
         "votos": request.json['votos'],
-        "ultimaModificación": request.json['ultimaModificación'],
+        "ultimaModificacion": request.json['ultimaModificacion'],
     }
     data.append(new_data)
     return jsonify({"message": "Dato agregado",
