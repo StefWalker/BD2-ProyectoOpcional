@@ -12,15 +12,27 @@ if __name__ == '__main__':
     })
     ref = db.reference('/')
     ref.set({
+        #'Users':{
+        #    'id': 'uid',
+        #    'email': 'fake@gmail.com',
+        #    'friends': ['init']
+        #},
         'Community':{
-            'person':{
-                'friends': ['leemxch@gmail.com', 'leemxch', 'another']
-            }
-        },
-        'Navigate':{
-            'mark':{
-                'latitude': 123,
-                'longitude': 1
-            }
+            'name': 'Public',
+            'participantes': ['init'],
+            'messages': ['init']
         }
+        #'Markers': {
+        #   'id': 1,
+        #    'latitud': 0,
+        #    'longitud': 0,
+        #    'peligro': 1,
+        #    'fecha': '30/10/2022',
+        #   'hora': '12:00',
+        #    'mensaje': 'Mensaje escrito by user',
+        #    'ubicacion': 1,
+        #    'votos': 1,
+        #    'ultimaModificacion': '30/10/2022'
+        #}
     })
+    print(ref.get())

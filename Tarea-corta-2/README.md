@@ -23,4 +23,4 @@
 * One Byte At A Time (2021). Youtube. Recuperado de [Thunkable Micro-Tutorial - Firebase Realtime Database Part I: Setup & Authentication](https://www.youtube.com/watch?v=bMLp9U5RKE8)
 * Forogh, P. (2020). Youtube. Recuperado de [Python Firebase SDK Integration With Real Time Database](https://www.youtube.com/watch?v=EiddkXBK0-o)
 * https://flask.palletsprojects.com/en/2.2.x/api/
-* https://codigofacilito.com/articulos/api-flask
+* https://codigofacilito.com/articulos/api-flaskhttps://stackoverflow.com/questions/37483406/setting-custom-key-when-pushing-new-data-to-firebase-database
