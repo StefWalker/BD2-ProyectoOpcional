@@ -289,6 +289,7 @@ Pantalla donde se redirecciona al usuario para que ingrese su email y contraseñ
 ## Futuras implementaciones
 ### Mapa
 Es la pantalla con un mapa con la ubicación en tiempo real donde el usuario ve los marcadores en el mapa y estos contienen la información de los peligros, el tipo de peligro, la hora ,fecha y la descripción del mismo.
+
 ![img](FotosMD/PantallaMapa.png)
 
 ### Pantalla de la comunidad
