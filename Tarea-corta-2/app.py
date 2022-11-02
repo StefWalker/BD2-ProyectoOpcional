@@ -41,7 +41,9 @@ def geCommunity():
 # Add user to the database
 @app.route('/user', methods=['POST'])
 def addUser():
+    # Global JSON path
     ref = db.reference('/')
+    # Create a child in the node Users
     ref.child("Users").child(str(request.json['id'])).set({
         'email': request.json['email'],
         'friends': request.json['friends']
@@ -51,13 +53,17 @@ def addUser():
 # Add friend from a user UID
 @app.route('/addFriend/<int:data>', methods=['POST'])
 def addFriend(data):
+    # Global JSON path
     ref = db.reference('/Users/' + str(data))
+    # Get all the data from the reference
     user = ref.get()
     try:
+        # Update the friends list
         ref.update({
             'friends': user["friends"] + [request.json['id']]
         })
     except:
+        # Create a list of friends if they dont have one
         ref.update({
             'friends': [request.json['id']]
         })
@@ -70,7 +76,9 @@ def addFriend(data):
 # Add group of community to the database
 @app.route('/addGroup/<int:data>', methods=['POST'])
 def addGroup(data):
+    # Global JSON path
     ref = db.reference('/')
+    # Create a child in the node Community
     ref.child("Community").child(str(request.json['name'])).set({
         'participants': [data],
         'messages': ["Welcome to " + request.json['name'] + "'s group"]
@@ -80,9 +88,12 @@ def addGroup(data):
 # Add a message to the group to the database
 @app.route('/addMessageGroup/<name>', methods=['POST'])
 def addMessageGroup(name):
+    # Path for the community node with the specific group
     ref = db.reference('/Community/' + str(name))
+    # Get all the data from the reference
     group = ref.get()
     ref.update({
+        # Add message to the list
         'messages': group["messages"] + [request.json['message']]
     })
     return jsonify(ref.get())
@@ -91,17 +102,19 @@ def addMessageGroup(name):
 @app.route('/addPerson/<name>', methods=['POST'])
 def addPerson(name):
     ref = db.reference('/Community/' + str(name))
+    # Get all the data from the reference
     group = ref.get()
     try:
+        # Update the participants list
         ref.update({
             'participants': group["participants"] + [request.json['id']]
         })
     except:
+        # Create the participants list if they dont have one
         ref.update({
             'participants': [request.json['id']]
         })
     return jsonify(ref.get())
-
 
 ####
 # Markers request
@@ -110,6 +123,7 @@ def addPerson(name):
 # Add a marker to the database
 @app.route('/marker', methods=['POST'])
 def addMarker():
+    # Global JSON path
     ref = db.reference('/')
     ref.child("Markers").child(str(request.json['title'])).set({
         'latitude': request.json['latitude'],
@@ -125,24 +139,30 @@ def addMarker():
     })
     return jsonify(ref.get())
 
-# +1 vote
-@app.route('/vote/<name>', methods=['POST'])
-def vote(name):
-    ref = db.reference('/Community/' + str(name))
-    group = ref.get()
+# Add a comment to the comments
+@app.route('/comment/<name>', methods=['POST'])
+def addComment(name):
+    # Path to the Marker node with the specific marker
+    ref = db.reference('/Markers/' + str(name))
+    # Get all the data from the reference
+    marker = ref.get()
+    # Add a comment to the comments
     ref.update({
-        'messages': group["messages"] + [request.json['message']],
+        'comments': marker["comments"] + [request.json['comment']],
         'lastModification': request.json['lastMod']
     })
     return jsonify(ref.get())
 
-# Add a comment to the comments
-@app.route('/comment/<name>', methods=['POST'])
-def addComment(name):
+# +1 vote
+@app.route('/vote/<name>', methods=['POST'])
+def vote(name):
+    # Path to the Markers node with the specific mark
     ref = db.reference('/Markers/' + str(name))
-    marker = ref.get()
+    # Get all the data from the reference
+    group = ref.get()
+    # Update +1 to the votes counter
     ref.update({
-        'comments': marker["comments"] + [request.json['comment']],
+        'vote': group["vote"] + 1,
         'lastModification': request.json['lastMod']
     })
     return jsonify(ref.get())
@@ -150,7 +170,9 @@ def addComment(name):
 # Change danger level
 @app.route('/changeDanger/<name>', methods=['POST'])
 def changeDanger(name):
+    # Path to the Marker node with the specific marker
     ref = db.reference('/Markers/' + str(name))
+    # Update the danger level
     ref.update({
         'danger': request.json['danger'],
         'lastModification': request.json['lastMod']
