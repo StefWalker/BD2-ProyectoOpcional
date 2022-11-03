@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: API
+  labels:
+    app: API
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: API
+  template:
+    metadata:
+      labels:
+        app: API
+    spec:
+      containers:
+      - name: API
+        image: basesdedatos2/API
+        env:
+          - name: DATAFROMK8S
+            value: "Hey"
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: RABBITQUEUE
+            value: "queue"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false

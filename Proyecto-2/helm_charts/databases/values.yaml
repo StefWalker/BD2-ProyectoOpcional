@@ -1,0 +1,62 @@
+  enableRabbitMQ: true
+  enableMariaDB: true
+
+  rabbitmq:
+    auth:
+      # Se agrega un password fija para installar/desinstalar
+      password: "rabbitmqpass"
+    # Habilitar el servicio de monitoreo
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+  # --------------------------------------------------------------------
+  mariadb:
+    auth:
+      # Se agrega un password fija para installar/desinstalar
+      rootPassword: "mariadbpass"
+      username: "user"
+      password: "user"
+    # Habilitar el servicio de monitoreo
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+  # --------------------------------------------------------------------
+  elasticsearch:
+    # Configuracion del nodo master
+    master: 
+      # Numero de replicas definidas para el master
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "2Mi"
+          cpu: "125m"
+    # Configuracion del nodo de datos
+    data: 
+      # Numero de replicas definidas para almacenar los datos
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo procesador de datos
+    ingest:
+      # Numero de replicas definidas para el procesador de datos
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    # Configuracion del nodo coordinador
+    coordinating:
+      # Numero de replicas definidas para el coordinador
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1Mi"
+          cpu: "125m"
+    metrics:  # Habilitar el servicio de monitoreo
+      enabled: true
+      serviceMonitor:
+        enabled: true

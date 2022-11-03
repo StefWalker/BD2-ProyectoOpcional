@@ -1,0 +1,3 @@
+  enablePrometheus: true
+  enableGrafana: true
+  enableOperator: true
