@@ -1,6 +1,8 @@
 import time
 import os
 import sys
+import requests
+'''
 import pika
 from datetime import datetime
 from elasticsearch import Elasticsearch
@@ -31,3 +33,7 @@ channel.queue_declare(queue = QUEUE_NAME)
 channel.basic_consume(queue = QUEUE_NAME, on_message_callback = callback, auto_ack = True)
 print(' [*] Waiting for messages. TO exit press CTRL+C')
 channel.start_consuming()
+'''
+
+response = requests.get("https://api.biorxiv.org/covid19/0").json()
+print(response["collection"][0])
