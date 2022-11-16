@@ -36,4 +36,27 @@ channel.start_consuming()
 '''
 
 response = requests.get("https://api.biorxiv.org/covid19/0").json()
-print(response["collection"][0])
+#print(response["collection"][0])
+
+
+
+import mysql.connector
+# pip install mariadb
+# pip install mysql-connector-python
+mysqlDatabase = mysql.connector.connect(
+  host="127.0.0.1",
+  port="60800",
+  user="user", 
+  password="user",
+  database="my_database",
+  charset="utf8mb3"
+)
+
+connection = mysqlDatabase.cursor()
+
+connection.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
+
+#connection.execute("SHOW TABLES")
+
+#for x in connection:
+#  print(x)
