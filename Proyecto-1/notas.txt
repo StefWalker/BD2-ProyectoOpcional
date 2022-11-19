@@ -11,15 +11,15 @@ en el producer.yaml y consumer.yaml cambian miguelku por su username de docker
 docker login(si no sirve el login desde lens, usen el cmd de windows y ejecutan los comandos ahí)
 
 en la carpeta producer(solo hace build y push, cambia user por su username de docker):
-docker build -t user/producer .
+docker build -t basesdedatos2/producer .
 docker images
-docker -v run user/producer
-docker push user/producer
+docker -v run basesdedatos2/producer
+docker push basesdedatos2/producer
 kubectl apply -f producer.yaml
 
 en la carpeta consumer:
-docker build -t user/consumer .
-docker push user/consumer
+docker build -t basesdedatos2/consumer .
+docker push basesdedatos2/consumer
 
 kubectl port-forward service/databases-rabbitmq 5672:5672
 
@@ -42,3 +42,124 @@ https://www.rabbitmq.com/getstarted.html
 
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.4.3
 docker pull docker.elastic.co/kibana/kibana:8.4.3
+
+
+
+
+GET /jobs/_search?q=status:new
+
+DELETE /jobs
+
+GET jobs/_search
+{
+    "query": {
+        "bool" : {
+          "must" : [
+            {
+              "match" : {
+                "status" : "new"
+              }
+            }
+          ]
+        }
+    }
+}
+
+GET jobs/_search
+{
+    "query": {
+              "match" : {
+                "status" : "new"
+              }
+    }
+}
+
+
+GET jobs/_doc/1
+DELETE jobs/_doc/1
+
+
+
+PUT jobs/_doc/1
+{
+    "job_id": "job",
+    "status": "new",
+    "msg": "",
+    "data_sources": [
+        {
+            "type": "mysql",
+            "name": "tabla_persona",
+            "url": "databases-mariadb",
+            "port": "3306",
+            "usuario": "user",
+            "password": "user"
+        },
+        {
+            "type": "mysql",
+            "name": "tabla_carro",
+            "url": "databases-mariadb",
+            "port": "3306",
+            "usuario": "user",
+            "password": "user"
+        },
+        {
+            "type": "elasticsearch",
+            "name": "destination_es",
+            "url": "https://quickstart-es-http",
+            "port": "9200",
+            "usuario": "elastic",
+            "password": "XXXXXXXXX"
+        }
+    ],
+    "control_data_source": "destination_es",
+    "source": {
+        "data_source": "tabla_persona",
+        "expression": "SELECT * FROM persona ORDER BY cedula",
+        "grp_size": "100"
+    },
+    "stages" : [
+        {
+            "name": "extract",
+            "source_queue": "extract",
+            "destination_queue": "%{transform->transformation->add_car}%"
+        },
+        {
+            "name": "transform",
+            "transformation": [
+                {
+                    "name": "add_car",
+                    "type": "sql_transform",
+                    "table": "car",
+                    "expression": "SELECT %{field_description}% FROM %{table}% WHERE %{field_owner}% = %{doc_field}%",
+                    "source_data_source": "database_car",
+                    "destination_data_source": "destination_es",
+                    "doc_field": "id",
+                    "source_queue": "sql_queue",
+                    "destination_queue": "%{transform->transformation->myregex}%",
+                    "fields_mapping": {
+                        "field_description": "description",
+                        "field_owner": "owner"
+                    }
+                },
+                {
+                    "name": "myregex",
+                    "type": "regex_transform",
+                    "regex_config": {
+                        "regex_expression": "^.* ([a-zA-z]{3}-[0-9]{3}) .*$",
+                        "group": "1",
+                        "field": "description"
+                    },
+                    "field_name": "placa",
+                    "source_queue": "regex_queue",
+                    "destination_queue": "%{load}%"
+                }
+            ]
+        },
+        {
+            "name": "load",
+            "source_queue": "ready",
+            "destination_data_source": "destination_es",
+            "index_name": "persona"
+        }
+    ]
+}

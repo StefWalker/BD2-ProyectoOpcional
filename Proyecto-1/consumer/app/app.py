@@ -8,10 +8,13 @@ import hashlib
 import json
 
 def callback(ch, method, properties, body):
-    json_object = json.loads(body)
+    '''json_object = json.loads(body)
     resp = client.index(index = ESINDEX, id = hashlib.md5(body).hexdigest(), document = json_object)
     print(resp)
-    print(" [x] Received %r" % body)
+    print(" [x] Received %r" % body)'''
+    #resp = client.get(index="jobs", id=1)
+    resp = client.search(index="jobs", body={"query":{"match":{"status" : "new"}}})
+    print(resp)
 
 DATA = os.getenv('DATAFROMK8S')
 RABBIT_MQ = os.getenv('RABBITMQ')
@@ -20,7 +23,7 @@ QUEUE_NAME = os.getenv('RABBITQUEUE')
 ESENDPOINT = os.getenv('ESENDPOINT')
 ESPASSWORD = os.getenv('ESPASSWORD')
 ESINDEX = os.getenv('ESINDEX')
-print("aqui")
+
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
 
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)

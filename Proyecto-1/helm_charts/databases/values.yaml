@@ -23,40 +23,40 @@
       serviceMonitor:
         enabled: true
   # --------------------------------------------------------------------
-  elasticsearch:
+  #elasticsearch:
     # Configuracion del nodo master
-    master: 
+   # master: 
       # Numero de replicas definidas para el master
-      replicaCount: 1
-      resources:
-        requests:
-          memory: "2Mi"
-          cpu: "125m"
+    #  replicaCount: 1
+    #  resources:
+    #    requests:
+    #      memory: "2Mi"
+    #      cpu: "125m"
     # Configuracion del nodo de datos
-    data: 
+    #data: 
       # Numero de replicas definidas para almacenar los datos
-      replicaCount: 1
-      resources:
-        requests:
-          memory: "1Mi"
-          cpu: "125m"
+     # replicaCount: 1
+     # resources:
+     #   requests:
+     #     memory: "1Mi"
+     #     cpu: "125m"
     # Configuracion del nodo procesador de datos
-    ingest:
+    #ingest:
       # Numero de replicas definidas para el procesador de datos
-      replicaCount: 1
-      resources:
-        requests:
-          memory: "1Mi"
-          cpu: "125m"
+     # replicaCount: 1
+     # resources:
+     #   requests:
+     #     memory: "1Mi"
+     #     cpu: "125m"
     # Configuracion del nodo coordinador
-    coordinating:
+    #coordinating:
       # Numero de replicas definidas para el coordinador
-      replicaCount: 1
-      resources:
-        requests:
-          memory: "1Mi"
-          cpu: "125m"
-    metrics:  # Habilitar el servicio de monitoreo
-      enabled: true
-      serviceMonitor:
-        enabled: true
+     # replicaCount: 1
+     # resources:
+     #   requests:
+     #     memory: "1Mi"
+     #     cpu: "125m"
+    #metrics:  # Habilitar el servicio de monitoreo
+    #  enabled: true
+    #  serviceMonitor:
+    #    enabled: true

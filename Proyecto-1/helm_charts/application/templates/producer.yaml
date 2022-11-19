@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: producer
-        image: leemxch/producer
+        image: basesdedatos2/producer
         env:
           - name: DATAFROMK8S
             value: "Hey"

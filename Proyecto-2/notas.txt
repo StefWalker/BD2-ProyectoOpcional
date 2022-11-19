@@ -42,3 +42,20 @@ https://www.rabbitmq.com/getstarted.html
 
 docker pull docker.elastic.co/elasticsearch/elasticsearch:8.4.3
 docker pull docker.elastic.co/kibana/kibana:8.4.3
+
+
+
+
+
+mobile app -> escribe un job y el loader escucha a mariadb la tabla job, lo procesa se pega al api de biorxiv
+revisa count y total, en el job el grp size, loader saca la info de biorxic y calcula cuantos grupos hacer
+offset (grp id 0 con offset de 0, grp id 1 offset 200)
+
+22549/size grupo -> cant grupo(redondea arriba)
+
+downloader -> baja size grupo a es
+
+cada descarga del downloader de los docs, det se mete a es y saca docs, por cada doc, agarra rel_doi y el rel_site en minuscula y la mete en el doc original
+
+
+no jats

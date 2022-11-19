@@ -370,3 +370,4 @@ La migración de datos entre plataformas es un sistema muy versátil de mensajer
 * Regolith (2021). How do I disable the SSL requirement in MySQL Workbench? Answer. Recuperado de [Regolith](https://stackoverflow.com/questions/69769563/how-do-i-disable-the-ssl-requirement-in-mysql-workbench
 )
 * Pika (2022). Introduction to Pika. Recuperado de [Pika](https://pika.readthedocs.io/en/stable/)
+* Elasticsearch (2022). Python Elasticsearch Client. Recuperado de [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/v8.5.1/)

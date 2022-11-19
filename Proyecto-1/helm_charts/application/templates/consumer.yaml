@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: leemxch/consumer
+        image: basesdedatos2/consumer
         env:
           - name: DATAFROMK8S
             value: "Hey"
