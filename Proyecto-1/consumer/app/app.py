@@ -7,6 +7,10 @@ from elasticsearch import Elasticsearch
 import hashlib
 import json
 
+###
+# Consumer
+#
+
 def callback(ch, method, properties, body):
     '''json_object = json.loads(body)
     resp = client.index(index = ESINDEX, id = hashlib.md5(body).hexdigest(), document = json_object)

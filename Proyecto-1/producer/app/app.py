@@ -2,6 +2,11 @@ import time
 import os
 import sys
 import pika
+
+###
+# Consumer
+#
+
 DATA = os.getenv('DATAFROMK8S')
 RABBIT_MQ = os.getenv('RABBITMQ')
 RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')
