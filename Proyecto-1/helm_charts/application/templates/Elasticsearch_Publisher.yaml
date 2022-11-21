@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: Elasticsearch_Publisher
+  labels:
+    app: Elasticsearch_Publisher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: Elasticsearch_Publisher
+  template:
+    metadata:
+      labels:
+        app: Elasticsearch_Publisher
+    spec:
+      containers:
+      - name: Elasticsearch_Publisher
+        image: basesdedatos2/Elasticsearch_Publisher
+        env:
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: READYQUEUE
+            value: "ready"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ESINDEXJOBS
+            value: jobs
+          - name: ESINDEXGROUPS
+            value: groups

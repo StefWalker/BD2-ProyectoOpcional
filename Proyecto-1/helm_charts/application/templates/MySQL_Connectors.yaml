@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: MySQL_Connectors
+  labels:
+    app: MySQL_Connectors
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: MySQL_Connectors
+  template:
+    metadata:
+      labels:
+        app: MySQL_Connectors
+    spec:
+      containers:
+      - name: MySQL_Connectors
+        image: basesdedatos2/MySQL_Connectors
+        env:
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: EXTRACTQUEUE
+            value: "extract"
+          - name: SQL_QUEUE
+            value: "sql_queue"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ESINDEXJOBS
+            value: jobs
+          - name: ESINDEXGROUPS
+            value: groups

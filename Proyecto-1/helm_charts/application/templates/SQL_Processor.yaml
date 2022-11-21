@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: SQL_Processor
+  labels:
+    app: SQL_Processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: SQL_Processor
+  template:
+    metadata:
+      labels:
+        app: SQL_Processor
+    spec:
+      containers:
+      - name: SQL_Processor
+        image: basesdedatos2/SQL_Processor
+        env:
+          - name: RABBITMQ
+            value: "databases-rabbitmq"
+          - name: SQL_QUEUE
+            value: "sql_queue"
+          - name: REGEX_QUEUE
+            value: "regex_queue"
+          - name: RABBITPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-rabbitmq
+                key: rabbitmq-password
+                optional: false
+          - name: ESENDPOINT
+            value: quickstart-es-default
+          - name: ESPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ESINDEXJOBS
+            value: jobs
+          - name: ESINDEXGROUPS
+            value: groups
