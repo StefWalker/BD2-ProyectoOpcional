@@ -32,6 +32,7 @@ parameters = pika.ConnectionParameters(host = RABBIT_MQ, credentials = credentia
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue = SQL_QUEUE)
+channel.queue_declare(queue = REGEX_QUEUE)
 channel.basic_consume(queue = SQL_QUEUE, on_message_callback = callback, auto_ack = True)
 print(' [*] Waiting for messages. TO exit press CTRL+C')
 channel.start_consuming()
