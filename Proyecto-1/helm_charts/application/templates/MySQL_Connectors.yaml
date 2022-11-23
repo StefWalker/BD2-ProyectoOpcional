@@ -18,6 +18,8 @@ spec:
       - name: mysqlconnectors
         image: basesdedatos2/mysql_connectors
         env:
+          - name: MARIADB
+            value: "databases-mariadb"
           - name: RABBITMQ
             value: "databases-rabbitmq"
           - name: EXTRACTQUEUE

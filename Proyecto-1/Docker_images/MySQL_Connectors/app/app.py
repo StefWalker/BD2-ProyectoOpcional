@@ -41,6 +41,8 @@ def callback(ch, method, properties, body):
     job = None
     resp = client.search(index=ESINDEXJOBS, body={"query":{"match":{"status" : "In-Progress"}}})
     for hit in resp["hits"]["hits"]:
+        print(hit["_source"]["job_id"])
+        print(doc["job_id"])
         if hit["_source"]["job_id"] == doc["job_id"]:
             # Reemplaza valor
             doc_id = hit["_id"]
@@ -55,7 +57,7 @@ def callback(ch, method, properties, body):
     if data_source is not None:
         try:
             # Conexion a la base de datos
-            connection = mariadb.connect(host='127.0.0.1', port=3305, database="my_database", user=data_source["usuario"], password=data_source["password"])
+            connection = mariadb.connect(host=MARIA, port=3306,user="user",password="user",database="my_database")
             cursor = connection.cursor()
             cursor.execute(job["source"]["expression"] + " LIMIT " + doc["group_id"].split("-")[1] + ", " + job["source"]["grp_size"])
             # Saca el query como una lista de json
@@ -77,10 +79,6 @@ def callback(ch, method, properties, body):
             print(update_res)
         except Error as e:
             print("Error en la conexion a la base de datos: ", e)
-        finally:
-            if connection.is_connected():
-                cursor.close()
-                connection.close()
     else:
         print("No se encontro el data source " + job["source"]["data_source"])
 
@@ -94,6 +92,7 @@ ESENDPOINT = os.getenv('ESENDPOINT')
 ESPASSWORD = os.getenv('ESPASSWORD')
 ESINDEXJOBS = os.getenv('ESINDEXJOBS')
 ESINDEXGROUPS = os.getenv('ESINDEXGROUPS')
+MARIA = os.getenv('MARIADB')
 
 # Conexion a Elasticsearch
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)

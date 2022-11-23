@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 import json
 import mariadb
 from mariadb import Error
+import math
 
 # Variables de entorno
 RABBIT_MQ = os.getenv('RABBITMQ')
@@ -15,6 +16,7 @@ ESENDPOINT = os.getenv('ESENDPOINT')
 ESPASSWORD = os.getenv('ESPASSWORD')
 ESINDEXJOBS = os.getenv('ESINDEXJOBS')
 ESINDEXGROUPS = os.getenv('ESINDEXGROUPS')
+MARIA = os.getenv('MARIADB')
 
 # Conexion a Elasticsearch
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
@@ -42,18 +44,19 @@ while True:
         print("job en proceso:")
         print(job)
         job["status"] = "In-Progress"
+        client.index(index = ESINDEXJOBS, id = hit["_id"], document = job)
         data_source = findJSON("name", job["source"]["data_source"], job["data_sources"])
         if data_source is not None:
             try:
                 # Conexion a la base de datos
-                connection = mariadb.connect(host='127.0.0.1', port=3305, database="my_database", user=data_source["usuario"], password=data_source["password"])
+                connection = mariadb.connect(host=MARIA, port=3306,user="user",password="user",database="my_database")
                 cursor = connection.cursor()
-                cursor.execute("SELECT COUNT(1) FROM " + job["source"]["expression"])
+                cursor.execute("SELECT COUNT(1) FROM (" + job["source"]["expression"] + ") as Personas")
                 total_registros = 0
                 # Obtiene resultado del query
                 for result in cursor:
                     total_registros = result[0]
-                cant_grupos = ceil(total_registros/int(job["source"]["grp_size"]))
+                cant_grupos = math.ceil(total_registros/int(job["source"]["grp_size"]))
                 # Publica documentos a Elasticsearch y RabbitMQ
                 while cant_grupos > 0:
                     doc = {"job_id" : job["job_id"], "group_id" : job["job_id"] + "-" + str(cant_grupos)}
@@ -65,10 +68,6 @@ while True:
                     cant_grupos = cant_grupos - 1
             except Error as e:
                 print("Error en la conexion a la base de datos: ", e)
-            finally:
-                if connection.is_connected():
-                    cursor.close()
-                    connection.close()
         else:
             print("No se encontro el data source " + job["source"]["data_source"])
     time.sleep(1)

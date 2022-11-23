@@ -18,6 +18,8 @@ spec:
       - name: orchestrator
         image: basesdedatos2/orchestrator
         env:
+          - name: MARIADB
+            value: "databases-mariadb"
           - name: RABBITMQ
             value: "databases-rabbitmq"
           - name: EXTRACTQUEUE
