@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: details_downloader
+  name: details
   labels:
-    app: details_downloader
+    app: details
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: details_downloader
+      app: details
   template:
     metadata:
       labels:
-        app: details_downloader
+        app: details
     spec:
       containers:
-      - name: details_downloader
-        image: basesdedatos2/details_downloader
+      - name: details
+        image: basesdedatos2/details
         env:
           - name: DATAFROMK8S
             value: "Hey"

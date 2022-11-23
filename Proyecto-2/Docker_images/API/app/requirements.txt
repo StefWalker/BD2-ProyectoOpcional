@@ -1,1 +1,5 @@
 pika
+flask
+flask-ngrok
+flask-cors
+firebase-admin

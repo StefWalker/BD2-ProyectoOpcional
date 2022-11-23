@@ -2,23 +2,26 @@ import time
 import os
 import sys
 import pika
-DATA = os.getenv('DATAFROMK8S')
-RABBIT_MQ = os.getenv('RABBITMQ')
-RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')
-QUEUE_NAME = os.getenv('RABBITQUEUE')
+import firebase_admin
+import json
+from firebase_admin import credentials
+from firebase_admin import db
+from flask import Flask, jsonify, request
+from flask_ngrok import run_with_ngrok
+from flask_cors import CORS
 
-credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
-parameters = pika.ConnectionParameters(host = RABBIT_MQ, credentials = credentials)
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
-channel.queue_declare(queue = QUEUE_NAME)
+app = Flask(__name__)
+CORS(app)
+run_with_ngrok(app)
 
-while True:
-    localtime = time.localtime()
-    result = time.strftime("%I:%M:%S %p", localtime)
-    msg = "{\"msg\": \"" + result + "\"}"
-    channel.basic_publish(exchange = '', routing_key = QUEUE_NAME, body = msg)
-    print(DATA + " - " + result)
-    time.sleep(1)
+cred = credentials.Certificate('adminSecret.json')
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://tareacorta2-2f12e-default-rtdb.firebaseio.com/'
+})
 
-connection.close()
+@app.route('/', methods=["GET"])
+def getData():
+    ref = db.reference('/')
+    return jsonify(ref.get())
+
+app.run()
