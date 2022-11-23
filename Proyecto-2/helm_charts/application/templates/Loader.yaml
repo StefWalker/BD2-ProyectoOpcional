@@ -44,3 +44,15 @@ spec:
             value: "EntryQueue"
           - name: OUTQUEUE
             value: "OutputQueue"
+          - name: ELASTIC
+            value: quickstart-es-default
+          - name: ELASTICPASS
+            valueFrom:
+              secretKeyRef:
+                name: quickstart-es-elastic-user
+                key: elastic
+                optional: false
+          - name: ELASTICINDEX
+            value: jobs
+          - name: ELASTICINDEX
+            value: groups
