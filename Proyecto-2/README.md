@@ -10,3 +10,12 @@ cree un docker hub para que no tengamos que estar cambiando el user del docker i
 API puede ser producer y el resto producers y consumers (?)
 
 kibana creo que no se ocupa
+
+
+
+
+### Referencias
+* https://stackoverflow.com/questions/64521556/docker-build-failed-at-downloading-mariadb
+* https://stackoverflow.com/questions/48310468/how-to-connect-to-database-using-scripting-language-inside-kubernetes-cluster
+* https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/
+* https://www.tutorialworks.com/kubernetes-pod-ip/

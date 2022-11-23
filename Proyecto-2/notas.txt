@@ -11,10 +11,10 @@ en el producer.yaml y consumer.yaml cambian miguelku por su username de docker
 docker login(si no sirve el login desde lens, usen el cmd de windows y ejecutan los comandos ahí)
 
 en la carpeta producer(solo hace build y push, cambia user por su username de docker):
-docker build -t user/producer .
+docker build -t basesdedatos2/loader .
 docker images
-docker -v run user/producer
-docker push user/producer
+docker -v run basesdedatos2/producer
+docker push basesdedatos2/producer
 kubectl apply -f producer.yaml
 
 en la carpeta consumer:

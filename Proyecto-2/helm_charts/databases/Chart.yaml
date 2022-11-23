@@ -32,7 +32,3 @@ dependencies:
   version: "11.3.3"
   repository: "https://charts.bitnami.com/bitnami"
   condition: enableMariaDB
-- name: elasticsearch
-  version: "19.4.4"
-  repository: "https://charts.bitnami.com/bitnami"
-  condition: enableElasticsearch

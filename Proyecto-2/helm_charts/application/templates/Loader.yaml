@@ -18,25 +18,29 @@ spec:
       - name: loader
         image: basesdedatos2/loader
         env:
-          - name: DATAFROMK8S
-            value: "Hey"
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: BIORXIV
+            value: "https://api.biorxiv.org/covid19/0"
           - name: RABBITMQ
             value: "databases-rabbitmq"
-          - name: RABBITQUEUE
-            value: "queue"
           - name: RABBITPASS
             valueFrom:
               secretKeyRef:
                 name: databases-rabbitmq
                 key: rabbitmq-password
                 optional: false
-          - name: ESENDPOINT
-            value: quickstart-es-default
-          - name: ESPASSWORD
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIAPASS
             valueFrom:
               secretKeyRef:
-                name: quickstart-es-elastic-user
-                key: elastic
+                name: databases-mariadb
+                key: mariadb-password
                 optional: false
-          - name: ESINDEX
-            value: docidx
+          - name: INQUEUE
+            value: "EntryQueue"
+          - name: OUTQUEUE
+            value: "OutputQueue"

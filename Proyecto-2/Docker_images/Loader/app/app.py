@@ -1,62 +1,77 @@
 import time
 import os
 import sys
+import mariadb
 import requests
-'''
-import pika
-from datetime import datetime
-from elasticsearch import Elasticsearch
-import hashlib
-import json
+import datetime
+import math
 
-def callback(ch, method, properties, body):
-    json_object = json.loads(body)
-    resp = client.index(index = ESINDEX, id = hashlib.md5(body).hexdigest(), document = json_object)
-    print(resp)
-    print(" [x] Received %r" % body)
-
-DATA = os.getenv('DATAFROMK8S')
-RABBIT_MQ = os.getenv('RABBITMQ')
-RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')
-QUEUE_NAME = os.getenv('RABBITQUEUE')
-ESENDPOINT = os.getenv('ESENDPOINT')
-ESPASSWORD = os.getenv('ESPASSWORD')
-ESINDEX = os.getenv('ESINDEX')
-
-client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
-
-credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
-parameters = pika.ConnectionParameters(host = RABBIT_MQ, credentials = credentials)
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
-channel.queue_declare(queue = QUEUE_NAME)
-channel.basic_consume(queue = QUEUE_NAME, on_message_callback = callback, auto_ack = True)
-print(' [*] Waiting for messages. TO exit press CTRL+C')
-channel.start_consuming()
-'''
-
-response = requests.get("https://api.biorxiv.org/covid19/0").json()
-#print(response["collection"][0])
-
-
-
-import mysql.connector
-# pip install mariadb
-# pip install mysql-connector-python
-mysqlDatabase = mysql.connector.connect(
+# Variables de entorno
+#IP = os.getenv('POD_IP')
+#BIO = os.getenv('BIORXIV')
+#HOSTMARIA = os.getenv('MARIADB')
+#MARIAPASS = os.getenv('MARIAPASS')
+#RABBIT = os.getenv('RABBITMQ')
+#RABBITPASS = os.getenv('RABBITPASS')
+#INQUEUE = os.getenv('INQUEUE')
+#OUTQUEUE = os.getenv('OUTQUEUE')
+IP = "123"
+# Conexion al servicio de la base de datos Mariadb
+mariaDatabase = mariadb.connect(
   host="127.0.0.1",
-  port="60800",
+  port=3305,
   user="user", 
   password="user",
-  database="my_database",
-  charset="utf8mb3"
+  database="my_database"
 )
 
-connection = mysqlDatabase.cursor()
+connection = mariaDatabase.cursor()
 
-connection.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
+# Crear las tablas si no existen
+connection.execute("DROP TABLE IF EXISTS groups")
+connection.execute("DROP TABLE IF EXISTS jobs")
+connection.execute("CREATE TABLE jobs (\
+                      id INT NOT NULL AUTO_INCREMENT,\
+                      created DATETIME NOT NULL,\
+                      status VARCHAR(45) NOT NULL,\
+                      end DATETIME NOT NULL,\
+                      loader VARCHAR(45) NOT NULL,\
+                      grp_size INT NOT NULL,\
+                      PRIMARY KEY (id)\
+                  )")
+connection.execute("CREATE TABLE groups (\
+                      id INT NOT NULL AUTO_INCREMENT,\
+                      id_job INT NOT NULL,\
+                      created DATETIME NOT NULL,\
+                      end DATETIME,\
+                      stage VARCHAR(45) NOT NULL,\
+                      grp_number INT NOT NULL,\
+                      status VARCHAR(45),\
+                      offsetData INT NOT NULL,\
+                      PRIMARY KEY (id),\
+                      FOREIGN KEY (id_job) REFERENCES jobs(id)\
+                  )")
 
-#connection.execute("SHOW TABLES")
+# Saco los datos del endpoint
+response = requests.get("https://api.biorxiv.org/covid19/0").json()
 
-#for x in connection:
-#  print(x)
+# Variable para definir el tamannio del grupo
+grp_size = 100
+grps = math.ceil(response["messages"][0]["total"]/grp_size)
+
+stop = 0
+connection.execute("INSERT INTO jobs(created,end,status,loader,grp_size) \
+                      VALUES (?,?,?,?,?)",(datetime.datetime.now(), datetime.datetime.now(), 'In progress', str(IP), grp_size))
+
+connection.execute("SHOW TABLES")
+myresult = connection.fetchall()
+print(myresult)
+while stop < response["messages"][0]["total"]: 
+  #connection.execute("INSERT INTO groups (id_job,create,end,stage,grp_number,status,offsetData) \
+  #                    VALUES ((SELECT id FROM jobs ORDER BY id DESC LIMIT 1),?,?,?,?,?,?)",(datetime.datetime.now(), None, 'loader', 1,None, stop))
+  stop += grp_size
+
+connection.execute("SELECT * FROM groups")
+for i in connection:
+    print(i)
+mariaDatabase.commit()
