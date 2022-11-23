@@ -19,3 +19,4 @@ kibana creo que no se ocupa
 * https://stackoverflow.com/questions/48310468/how-to-connect-to-database-using-scripting-language-inside-kubernetes-cluster
 * https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/
 * https://www.tutorialworks.com/kubernetes-pod-ip/
+* https://scrapeops.io/python-scrapy-playbook/scrapy-save-data-mysql/
