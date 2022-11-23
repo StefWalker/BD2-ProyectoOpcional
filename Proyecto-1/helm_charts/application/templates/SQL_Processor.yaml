@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: SQL_Processor
+  name: sqlprocessor
   labels:
-    app: SQL_Processor
+    app: sqlprocessor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: SQL_Processor
+      app: sqlprocessor
   template:
     metadata:
       labels:
-        app: SQL_Processor
+        app: sqlprocessor
     spec:
       containers:
-      - name: SQL_Processor
-        image: basesdedatos2/SQL_Processor
+      - name: sqlprocessor
+        image: basesdedatos2/sql_processor
         env:
           - name: RABBITMQ
             value: "databases-rabbitmq"

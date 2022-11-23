@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Orchestrator
+  name: orchestrator
   labels:
-    app: Orchestrator
+    app: orchestrator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Orchestrator
+      app: orchestrator
   template:
     metadata:
       labels:
-        app: Orchestrator
+        app: orchestrator
     spec:
       containers:
-      - name: Orchestrator
-        image: basesdedatos2/Orchestrator
+      - name: orchestrator
+        image: basesdedatos2/orchestrator
         env:
           - name: RABBITMQ
             value: "databases-rabbitmq"

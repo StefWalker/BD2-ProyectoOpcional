@@ -6,11 +6,13 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 import hashlib
 import json
+import mariadb
+from mariadb import Error
 
 # Devuelve un json de la lista dada
 def findJSON(key, value, lista):
     for x in lista:
-        if x[key] = value:
+        if x[key] == value:
             return x
     return None
 
@@ -53,7 +55,7 @@ def callback(ch, method, properties, body):
     if data_source is not None:
         try:
             # Conexion a la base de datos
-            connection = mysql.connector.connect(host='127.0.0.1', database=data_source["name"], user=data_source["usuario"], password=data_source["password"])
+            connection = mariadb.connect(host='127.0.0.1', port=3305, database="my_database", user=data_source["usuario"], password=data_source["password"])
             cursor = connection.cursor()
             cursor.execute(job["source"]["expression"] + " LIMIT " + doc["group_id"].split("-")[1] + ", " + job["source"]["grp_size"])
             # Saca el query como una lista de json

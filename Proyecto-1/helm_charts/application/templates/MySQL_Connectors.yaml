@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: MySQL_Connectors
+  name: mysqlconnectors
   labels:
-    app: MySQL_Connectors
+    app: mysqlconnectors
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: MySQL_Connectors
+      app: mysqlconnectors
   template:
     metadata:
       labels:
-        app: MySQL_Connectors
+        app: mysqlconnectors
     spec:
       containers:
-      - name: MySQL_Connectors
-        image: basesdedatos2/MySQL_Connectors
+      - name: mysqlconnectors
+        image: basesdedatos2/mysql_connectors
         env:
           - name: RABBITMQ
             value: "databases-rabbitmq"

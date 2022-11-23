@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Elasticsearch_Publisher
+  name: elasticsearchpublisher
   labels:
-    app: Elasticsearch_Publisher
+    app: elasticsearchpublisher
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Elasticsearch_Publisher
+      app: elasticsearchpublisher
   template:
     metadata:
       labels:
-        app: Elasticsearch_Publisher
+        app: elasticsearchpublisher
     spec:
       containers:
-      - name: Elasticsearch_Publisher
-        image: basesdedatos2/Elasticsearch_Publisher
+      - name: elasticsearchpublisher
+        image: basesdedatos2/elasticsearch_publisher
         env:
           - name: RABBITMQ
             value: "databases-rabbitmq"

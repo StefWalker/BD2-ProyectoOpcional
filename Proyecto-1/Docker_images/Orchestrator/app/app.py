@@ -2,8 +2,10 @@ import time
 import os
 import sys
 import pika
-import mysql.connector
-from mysql.connector import Error
+from elasticsearch import Elasticsearch
+import json
+import mariadb
+from mariadb import Error
 
 # Variables de entorno
 RABBIT_MQ = os.getenv('RABBITMQ')
@@ -27,7 +29,7 @@ channel.queue_declare(queue = EXTRACT_QUEUE)
 # Devuelve un json de la lista dada
 def findJSON(key, value, lista):
     for x in lista:
-        if x[key] = value:
+        if x[key] == value:
             return x
     return None
 
@@ -44,7 +46,7 @@ while True:
         if data_source is not None:
             try:
                 # Conexion a la base de datos
-                connection = mysql.connector.connect(host='127.0.0.1', database=data_source["name"], user=data_source["usuario"], password=data_source["password"])
+                connection = mariadb.connect(host='127.0.0.1', port=3305, database="my_database", user=data_source["usuario"], password=data_source["password"])
                 cursor = connection.cursor()
                 cursor.execute("SELECT COUNT(1) FROM " + job["source"]["expression"])
                 total_registros = 0

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: REGEX_Processor
+  name: regexprocessor
   labels:
-    app: REGEX_Processor
+    app: regexprocessor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: REGEX_Processor
+      app: regexprocessor
   template:
     metadata:
       labels:
-        app: REGEX_Processor
+        app: regexprocessor
     spec:
       containers:
-      - name: REGEX_Processor
-        image: basesdedatos2/REGEX_Processor
+      - name: regexprocessor
+        image: basesdedatos2/regex_processor
         env:
           - name: RABBITMQ
             value: "databases-rabbitmq"
