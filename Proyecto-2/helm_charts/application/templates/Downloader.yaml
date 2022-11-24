@@ -18,18 +18,28 @@ spec:
       - name: downloader
         image: basesdedatos2/downloader
         env:
-          - name: DATAFROMK8S
-            value: "Hey"
+          - name: BIORXIV
+            value: "https://api.biorxiv.org/covid19/"
           - name: RABBITMQ
             value: "databases-rabbitmq"
-          - name: RABBITQUEUE
-            value: "queue"
           - name: RABBITPASS
             valueFrom:
               secretKeyRef:
                 name: databases-rabbitmq
                 key: rabbitmq-password
                 optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADBPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-password
+                optional: false
+          - name: INQUEUE
+            value: "OutputQueue"
+          - name: OUTQUEUE
+            value: "DetDownQueue"
           - name: ESENDPOINT
             value: quickstart-es-default
           - name: ESPASSWORD
@@ -38,5 +48,5 @@ spec:
                 name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
-          - name: ESINDEX
-            value: docidx
+          - name: ESINDEXGROUPS
+            value: groups
