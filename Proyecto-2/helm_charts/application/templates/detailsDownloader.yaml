@@ -18,18 +18,32 @@ spec:
       - name: details
         image: basesdedatos2/details
         env:
-          - name: DATAFROMK8S
-            value: "Hey"
+          - name: POD_NAME
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.name
+          - name: BIORXIV_DETAILS
+            value: "https://api.biorxiv.org/details/"
           - name: RABBITMQ
             value: "databases-rabbitmq"
-          - name: RABBITQUEUE
-            value: "queue"
           - name: RABBITPASS
             valueFrom:
               secretKeyRef:
                 name: databases-rabbitmq
                 key: rabbitmq-password
                 optional: false
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIADBPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-password
+                optional: false
+          - name: INQUEUE
+            value: "DetDownQueue"
+          - name: OUTQUEUE
+            value: "JatsQueue"
           - name: ESENDPOINT
             value: quickstart-es-default
           - name: ESPASSWORD
@@ -38,5 +52,5 @@ spec:
                 name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
-          - name: ESINDEX
-            value: docidx
+          - name: ESINDEXGROUPS
+            value: groups

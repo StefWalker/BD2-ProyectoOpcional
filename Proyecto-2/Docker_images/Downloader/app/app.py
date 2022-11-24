@@ -23,7 +23,7 @@ def callback(ch, method, properties, body):
         print("Grupo encontrado en la base de datos")
         # Inserta historial
         cursor.execute("INSERT INTO historial(stage, status, created, end, message, grp_id, component) \
-                        VALUES (\"dowloader\", \"in-progress\", now(), null, null, " + group[0] + ", \"downloader\")")
+                        VALUES (\"downloader\", \"in-progress\", now(), null, null, " + group[0] + ", " + POD_NAME + ")")
         # Obtiene tamaño del grupo
         cursor.execute("SELECT grp_size FROM jobs WHERE id = " + doc["id_job"])
         query_result = cursor.fetchall()
@@ -33,8 +33,8 @@ def callback(ch, method, properties, body):
             print("Descargando documentos")
             documents = []
             for i in range(group[7], grp_size + group[7]):
-                response = requests.get(BIO + str(i)).json()
-                if response["messages"][0]["status"] == "no posts found":
+                response = requests.get(BIORXIV + str(i)).json()
+                if response["messages"][0]["status"] != "ok":
                     break
                 documents.append(response)
             # Publica el mensaje con los documentos al indice de Elasticsearch
@@ -56,6 +56,7 @@ def callback(ch, method, properties, body):
     print("-----------------------------------------------------------------")
 
 # Variables de entorno
+POD_NAME = os.getenv('POD_NAME')
 BIORXIV = os.getenv('BIORXIV')
 RABBIT_MQ = os.getenv('RABBITMQ')
 RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')

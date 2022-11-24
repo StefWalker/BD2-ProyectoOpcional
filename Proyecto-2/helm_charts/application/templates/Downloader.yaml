@@ -18,6 +18,10 @@ spec:
       - name: downloader
         image: basesdedatos2/downloader
         env:
+          - name: POD_NAME
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.name
           - name: BIORXIV
             value: "https://api.biorxiv.org/covid19/"
           - name: RABBITMQ
