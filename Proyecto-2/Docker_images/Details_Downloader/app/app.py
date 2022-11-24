@@ -8,11 +8,14 @@ import json
 import mariadb
 from mariadb import Error
 import requests
-#   poner msg con {} y id_job porque en loader es grp_number?
+
 def callback(ch, method, properties, body):
     # Recibe mensaje
-    doc = json.loads(body)
+    body2 = body.decode('utf-8','strict').replace('{', '').replace('}', '')
+    doc = json.loads('{' + body2 + '}')
     print("documento recibido:")
+    print(body)
+    print("documento en JSON:")
     print(doc)
     id_job = str(doc["id_job"])
     grp_number = str(doc["grp_number"])
@@ -51,9 +54,9 @@ def callback(ch, method, properties, body):
             cursor.execute("UPDATE groups SET status = \"completed\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
             # Publica mensaje a la cola de salida
             maria.commit()
-            channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = json.dumps(doc))
+            channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = body)
             print("documento enviado:")
-            print(doc)
+            print(body)
         else:
             print("Error en el details downloader: no existe el job o el numero de grupo")
     else:

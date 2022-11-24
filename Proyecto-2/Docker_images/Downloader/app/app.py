@@ -11,8 +11,11 @@ import requests
 
 def callback(ch, method, properties, body):
     # Recibe mensaje
-    doc = json.loads(body)
+    body2 = body.decode('utf-8','strict').replace('{', '').replace('}', '')
+    doc = json.loads('{' + body2 + '}')
     print("documento recibido:")
+    print(body)
+    print("documento en JSON:")
     print(doc)
     id_job = str(doc["id_job"])
     grp_number = str(doc["grp_number"])
@@ -41,7 +44,6 @@ def callback(ch, method, properties, body):
                 if response["messages"][0]["status"] != "ok":
                     break
                 documents.append(response)
-                break
             # Publica el mensaje con los documentos al indice de Elasticsearch
             doc["docs"] = documents
             client.index(index = ESINDEXGROUPS, id = id_job + "-" + grp_number, document = doc)
@@ -53,9 +55,9 @@ def callback(ch, method, properties, body):
             cursor.execute("UPDATE groups SET status = \"completed\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
             # Publica mensaje a la cola de salida
             maria.commit()
-            channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = json.dumps(doc))
+            channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = body)
             print("documento enviado:")
-            print(doc)
+            print(body)
         else:
             print("Error en el downloader: no existe el job")
     else:
@@ -88,6 +90,11 @@ except Error as e:
 
 # Conexion a Elasticsearch
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
+if client.indices.exists(index = ESINDEXGROUPS):
+    client.indices.delete(index = ESINDEXGROUPS)
+    print("Indice groups eliminado")
+client.indices.create(index = ESINDEXGROUPS)
+print("Indice groups creado")
 
 # Conexion a RabbitMQ
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)

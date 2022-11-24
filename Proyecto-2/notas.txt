@@ -18,8 +18,24 @@ docker push basesdedatos2/producer
 kubectl apply -f producer.yaml
 
 en la carpeta consumer:
-docker build -t user/consumer .
-docker push user/consumer
+
+
+
+
+
+docker build -t basesdedatos2/loader .
+docker push basesdedatos2/loader
+
+docker build -t basesdedatos2/downloader .
+docker push basesdedatos2/downloader
+
+docker build -t basesdedatos2/details .
+docker push basesdedatos2/details
+
+
+
+
+
 
 kubectl port-forward service/databases-rabbitmq 5672:5672
 
@@ -59,3 +75,27 @@ cada descarga del downloader de los docs, det se mete a es y saca docs, por cada
 
 
 no jats
+
+
+p = ""
+put = True
+msg
+>> '{"id_job":"{1}", "grp_number": "{1}" }'
+for i in range(1, len(msg)-1):
+                    if msg[i] == '{' or msg[i] == '}':
+                        continue
+                    elif msg[i] == ':':
+                        put = False
+                    elif msg[i] == ',':
+                        put = True
+                    if put and msg[i] != '"':
+                        p += msg[i]
+                    elif not put and msg[i] == '"':
+                        continue
+                    else:
+                        p += msg[i]
+
+                        
+jSON = '{' + p + '}'
+json.loads(jSON)
+>> {'id_job': 1, 'grp_number': 1}

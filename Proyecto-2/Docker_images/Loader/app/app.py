@@ -93,7 +93,7 @@ while stop < response["messages"][0]["total"] + grp_size:
                       VALUES ((SELECT id FROM jobs ORDER BY id DESC LIMIT 1),?,?,?,?)",(datetime.datetime.now(), 'loader', grp_number, stop))
   mariaDatabase.commit()
 
-  msg = "{\"id_job\":" + str(1) + ", \"grp_number\": " + str(grp_number) + " }"
+  msg = "{\"id_job\":{" + str(grp_number) + "}, \"grp_number\": {" + str(grp_number) + "} }"
   channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = msg)
   print(msg)
 
