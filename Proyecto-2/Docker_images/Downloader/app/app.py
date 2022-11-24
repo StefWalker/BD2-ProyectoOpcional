@@ -14,18 +14,22 @@ def callback(ch, method, properties, body):
     doc = json.loads(body)
     print("documento recibido:")
     print(doc)
-    cursor.execute("UPDATE grupo SET stage = \"downloader\", status = \"in-progress\" WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
+    id_job = str(doc["id_job"])
+    grp_number = str(doc["grp_number"])
+    cursor.execute("UPDATE groups SET stage = \"downloader\", status = \"in-progress\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
     # Obtiene el grupo
-    cursor.execute("SELECT * FROM grupo WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
+    maria.commit()
+    cursor.execute("SELECT * FROM groups WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
     query_result = cursor.fetchall()
     if query_result != []:
         group = query_result[0]
         print("Grupo encontrado en la base de datos")
-        # Inserta historial
-        cursor.execute("INSERT INTO historial(stage, status, created, end, message, grp_id, component) \
-                        VALUES (\"downloader\", \"in-progress\", now(), null, null, " + group[0] + ", " + POD_NAME + ")")
+        # Inserta history
+        cursor.execute("INSERT INTO history(stage, status, created, end, message, grp_id, component) \
+                        VALUES (\"downloader\", \"in-progress\", now(), null, null, " + str(group[0]) + ", \"" + POD_NAME + "\")")
         # Obtiene tamaño del grupo
-        cursor.execute("SELECT grp_size FROM jobs WHERE id = " + doc["id_job"])
+        maria.commit()
+        cursor.execute("SELECT grp_size FROM jobs WHERE id = " + id_job)
         query_result = cursor.fetchall()
         if query_result != []:
             grp_size = query_result[0][0]
@@ -37,15 +41,18 @@ def callback(ch, method, properties, body):
                 if response["messages"][0]["status"] != "ok":
                     break
                 documents.append(response)
+                break
             # Publica el mensaje con los documentos al indice de Elasticsearch
             doc["docs"] = documents
-            client.index(index = ESINDEXGROUPS, id = doc["id_job"] + "-" + doc["grp_number"], document = doc)
+            client.index(index = ESINDEXGROUPS, id = id_job + "-" + grp_number, document = doc)
             print("documento publicado en el indice groups")
             del doc["docs"]
             # Actualiza valores
-            cursor.execute("UPDATE historial SET status = \"completed\", end = now() WHERE grp_id = " + group[0])
-            cursor.execute("UPDATE grupo SET status = \"completed\" WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
+            cursor.execute("UPDATE history SET status = \"completed\", end = now() WHERE grp_id = " + str(group[0]))
+            maria.commit()
+            cursor.execute("UPDATE groups SET status = \"completed\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
             # Publica mensaje a la cola de salida
+            maria.commit()
             channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = json.dumps(doc))
             print("documento enviado:")
             print(doc)
@@ -78,21 +85,6 @@ try:
     cursor = maria.cursor()
 except Error as e:
     print("Error en la conexion a la base de datos: ", e)
-
-# Tabla history
-cursor.execute("DROP TABLE IF EXISTS historial")
-cusror.execute("CREATE TABLE historial (\
-                    id INT NOT NULL AUTO_INCREMENT,\
-                    component VARCHAR(45) NOT NULL,\
-                    status VARCHAR(45) NOT NULL,\
-                    created DATETIME NOT NULL,\
-                    end DATETIME NOT NULL,\
-                    message TEXT NOT NULL,\
-                    grp_id INT NOT NULL,\
-                    stage VARCHAR(45) NOT NULL,\
-                    PRIMARY KEY (id),\
-                    FOREIGN KEY (grp_id) REFERENCES grupo(id)\
-                )")
 
 # Conexion a Elasticsearch
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)

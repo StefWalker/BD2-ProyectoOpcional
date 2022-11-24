@@ -19,9 +19,9 @@ spec:
         image: basesdedatos2/details
         env:
           - name: POD_NAME
-              valueFrom: 
-                fieldRef: 
-                  fieldPath: metadata.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
           - name: BIORXIV_DETAILS
             value: "https://api.biorxiv.org/details/"
           - name: RABBITMQ

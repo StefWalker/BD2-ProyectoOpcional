@@ -35,6 +35,7 @@ mariaDatabase = mariadb.connect(
 connection = mariaDatabase.cursor()
 
 # Crear las tablas si no existen
+connection.execute("DROP TABLE IF EXISTS history")
 connection.execute("DROP TABLE IF EXISTS groups")
 connection.execute("DROP TABLE IF EXISTS jobs")
 connection.execute("CREATE TABLE jobs (\
@@ -58,12 +59,24 @@ connection.execute("CREATE TABLE groups (\
                       PRIMARY KEY (id),\
                       FOREIGN KEY (id_job) REFERENCES jobs(id)\
                   )")
+connection.execute("CREATE TABLE history (\
+                    id INT NOT NULL AUTO_INCREMENT,\
+                    component VARCHAR(45) NOT NULL,\
+                    status VARCHAR(45) NOT NULL,\
+                    created DATETIME NOT NULL,\
+                    end DATETIME,\
+                    message TEXT,\
+                    grp_id INT NOT NULL,\
+                    stage VARCHAR(45) NOT NULL,\
+                    PRIMARY KEY (id),\
+                    FOREIGN KEY (grp_id) REFERENCES groups(id)\
+                )")
 
 # Saco los datos del endpoint
 response = requests.get(BIO).json()
 
 # Variable para definir el tamannio del grupo
-grp_size = 300
+grp_size = 30
 grps = math.ceil(response["messages"][0]["total"]/grp_size)
 
 # Variables de control del offset y grp_number respectivo de cada grupo
@@ -80,8 +93,8 @@ while stop < response["messages"][0]["total"] + grp_size:
                       VALUES ((SELECT id FROM jobs ORDER BY id DESC LIMIT 1),?,?,?,?)",(datetime.datetime.now(), 'loader', grp_number, stop))
   mariaDatabase.commit()
 
-  msg = "{id_job:{" + str(grp_number) + "}, grp_number: {" + str(grp_number) + "} }"
-  channel.basic_publish(exchange = '', routing_key = INQUEUE, body = msg)
+  msg = "{\"id_job\":" + str(1) + ", \"grp_number\": " + str(grp_number) + " }"
+  channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = msg)
   print(msg)
 
   # Se actualiza las variables

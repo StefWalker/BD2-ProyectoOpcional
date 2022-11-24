@@ -8,26 +8,30 @@ import json
 import mariadb
 from mariadb import Error
 import requests
-
+#   poner msg con {} y id_job porque en loader es grp_number?
 def callback(ch, method, properties, body):
     # Recibe mensaje
     doc = json.loads(body)
     print("documento recibido:")
     print(doc)
+    id_job = str(doc["id_job"])
+    grp_number = str(doc["grp_number"])
     # Obtiene el grupo
-    resp = client.get(index = ESINDEXGROUPS, id = doc["id_job"] + "-" + doc["grp_number"])
+    resp = client.get(index = ESINDEXGROUPS, id = id_job + "-" + grp_number)
     if resp["found"]:
         document = resp["_source"]
         print("Grupo encontrado en Elasticsearch")
-        cursor.execute("UPDATE grupo SET stage = \"details-downloader\", status = \"in-progress\" WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
-        cursor.execute("SELECT * FROM grupo WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
+        cursor.execute("UPDATE groups SET stage = \"details-downloader\", status = \"in-progress\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
+        maria.commit()
+        cursor.execute("SELECT * FROM groups WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
         query_result = cursor.fetchall()
         if query_result != []:
             group = query_result[0]
             print("Grupo encontrado en la base de datos")
-            # Inserta historial
-            cursor.execute("INSERT INTO historial(stage, status, created, end, message, grp_id, component) \
-                            VALUES (\"details-downloader\", \"in-progress\", now(), null, null, " + group[0] + ", " + POD_NAME + ")")
+            # Inserta history
+            cursor.execute("INSERT INTO history(stage, status, created, end, message, grp_id, component) \
+                            VALUES (\"details-downloader\", \"in-progress\", now(), null, null, " + str(group[0]) + ", \"" + POD_NAME + "\")")
+            maria.commit()
             documents = document["docs"]
             # Agrega detalles a cada documento
             print("Agregando detalles")
@@ -39,12 +43,14 @@ def callback(ch, method, properties, body):
                     details = requests.get(BIORXIV_DETAILS + rel_site + "/" + rel_doi).json()
                     data["details"] = details
             # Actualiza el grupo en el indice de Elasticsearch
-            client.index(index = ESINDEXGROUPS, id = doc["id_job"] + "-" + doc["grp_number"], document = document)
+            client.index(index = ESINDEXGROUPS, id = id_job + "-" + grp_number, document = document)
             print("documento actualizado en el indice groups")
             # Actualiza valores
-            cursor.execute("UPDATE historial SET status = \"completed\", end = now() WHERE grp_id = " + group[0])
-            cursor.execute("UPDATE grupo SET status = \"completed\" WHERE id_job = " + doc["id_job"] + " AND grp_number = " + doc["grp_number"])
+            cursor.execute("UPDATE history SET status = \"completed\", end = now() WHERE grp_id = " + str(group[0]))
+            maria.commit()
+            cursor.execute("UPDATE groups SET status = \"completed\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
             # Publica mensaje a la cola de salida
+            maria.commit()
             channel.basic_publish(exchange = '', routing_key = OUTQUEUE, body = json.dumps(doc))
             print("documento enviado:")
             print(doc)
