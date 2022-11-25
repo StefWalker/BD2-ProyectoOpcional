@@ -99,3 +99,10 @@ for i in range(1, len(msg)-1):
 jSON = '{' + p + '}'
 json.loads(jSON)
 >> {'id_job': 1, 'grp_number': 1}
+
+GET groups/_search
+{
+    "query": {
+              "match_all": {}
+    }
+}

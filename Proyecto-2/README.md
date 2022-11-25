@@ -20,3 +20,4 @@ kibana creo que no se ocupa
 * https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/
 * https://www.tutorialworks.com/kubernetes-pod-ip/
 * https://scrapeops.io/python-scrapy-playbook/scrapy-save-data-mysql/
+* https://requests.readthedocs.io/en/latest/_modules/requests/exceptions/

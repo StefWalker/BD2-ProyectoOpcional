@@ -8,11 +8,31 @@ import json
 import mariadb
 from mariadb import Error
 import requests
+from requests.exceptions import *
+
+# Pasa el string a un json valido
+def formatJSON(msg):
+    jSON = ""
+    put = True
+    for i in range(1, len(msg)-1):
+        if msg[i] == '{' or msg[i] == '}':
+            continue
+        elif msg[i] == ':':
+            put = False
+        elif msg[i] == ',':
+            put = True
+        if put and msg[i] != '"':
+            jSON += msg[i]
+        elif not put and msg[i] == '"':
+            continue
+        else:
+            jSON += msg[i]
+    return '{' + jSON + '}'
 
 def callback(ch, method, properties, body):
     # Recibe mensaje
-    body2 = body.decode('utf-8','strict').replace('{', '').replace('}', '')
-    doc = json.loads('{' + body2 + '}')
+    body2 = formatJSON(body.decode('utf-8','strict'))
+    doc = json.loads(body2)
     print("documento recibido:")
     print(body)
     print("documento en JSON:")
@@ -39,18 +59,40 @@ def callback(ch, method, properties, body):
             # Obtiene documentos
             print("Descargando documentos")
             documents = []
-            for i in range(group[7], grp_size + group[7]):
-                response = requests.get(BIORXIV + str(i)).json()
-                if response["messages"][0]["status"] != "ok":
-                    break
-                documents.append(response)
+            errorReq = False
+            errorMsg = ""
+            try:
+                for i in range(group[7], grp_size + group[7]):
+                    response = requests.get(BIORXIV + str(i)).json()
+                    if response["messages"][0]["status"] != "ok":
+                        break
+                    documents.append(response)
+            except ConnectionError as e:
+                errorReq = True
+                errorMsg = "Error en la conexion: " + str(e)
+                print(errorMsg)
+            except Timeout as e:
+                errorReq = True
+                errorMsg = "Error limite de tiempo: " + str(e)
+                print(errorMsg)
+            except URLRequired as e:
+                errorReq = True
+                errorMsg = "Error en el link: " + str(e)
+                print(errorMsg)
+            except RequestException as e:
+                errorReq = True
+                errorMsg = "Error en el proceso: " + str(e)
+                print(errorMsg)
             # Publica el mensaje con los documentos al indice de Elasticsearch
             doc["docs"] = documents
             client.index(index = ESINDEXGROUPS, id = id_job + "-" + grp_number, document = doc)
             print("documento publicado en el indice groups")
             del doc["docs"]
             # Actualiza valores
-            cursor.execute("UPDATE history SET status = \"completed\", end = now() WHERE grp_id = " + str(group[0]))
+            if errorReq:
+                cursor.execute("UPDATE history SET status = \"error\", end = now(), message = " + errorMsg + " WHERE grp_id = " + str(group[0]))
+            else:
+                cursor.execute("UPDATE history SET status = \"completed\", end = now() WHERE grp_id = " + str(group[0]))
             maria.commit()
             cursor.execute("UPDATE groups SET status = \"completed\" WHERE id_job = " + id_job + " AND grp_number = " + grp_number)
             # Publica mensaje a la cola de salida
@@ -98,7 +140,7 @@ print("Indice groups creado")
 
 # Conexion a RabbitMQ
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
-parameters = pika.ConnectionParameters(host = RABBIT_MQ, credentials = credentials)
+parameters = pika.ConnectionParameters(host = RABBIT_MQ, credentials = credentials, heartbeat = 600)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 channel.queue_declare(queue = INQUEUE)
