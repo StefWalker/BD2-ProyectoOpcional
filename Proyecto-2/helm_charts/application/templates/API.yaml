@@ -18,23 +18,13 @@ spec:
       - name: api
         image: basesdedatos2/api
         env:
-          - name: DATAFROMK8S
-            value: "Hey"
-          - name: RABBITMQ
-            value: "databases-rabbitmq"
-          - name: RABBITQUEUE
-            value: "queue"
-          - name: RABBITPASS
-            valueFrom:
-              secretKeyRef:
-                name: databases-rabbitmq
-                key: rabbitmq-password
-                optional: false
-          - name: ESENDPOINT
+          - name: ELASTICURL
             value: quickstart-es-default
-          - name: ESPASSWORD
+          - name: ELASTICPASS
             valueFrom:
               secretKeyRef:
                 name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
+            - name: ESINDEXGROUPS
+                value: groups

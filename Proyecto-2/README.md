@@ -183,11 +183,15 @@ CMD [ "python", "-u", "./app.py"]
 
 Por consiguiente, dentro de la carpeta de configuración de Python, tiene un archivo de texto (requirements.txt) con las librerías necesarias para instalarlas de forma automática luego de publicar la aplicación a Docker Hub. Dicha librarías utilizadas son la de pika (para poder enviar o recibir mensajes del servidor a cliente y viceversa), flask, flask-ngrok, flask-cors y firebase-admin para el "API", mientras que las demás aplicaciones utilizan pika, elasticsearch, mariadb y requests. 
 
-Luego de crear el archivo de texto, es necesario definir el código fuente de Python para poder conectarlo con la cola de RabbitMQ por medio de variables de entorno, los cuales se comentarán más adelante. También, definir el comportamiento lógico para procesar la información.
+Luego de crear el archivo de texto, es necesario definir el código fuente de Python para poder conectarlo con la cola de RabbitMQ por medio de variables de entorno. También, definir el comportamiento lógico para procesar la información. A continuación se muestra un ejemplo de las variables de entorno del trabajador "loader".
 
 ```
-RABBIT_MQ = os.getenv('RABBITMQ')
-RABBIT_MQ_PASSWORD = os.getenv('RABBITPASS')
+IP = os.getenv('POD_IP')
+BIO = os.getenv('BIORXIV')
+HOSTMARIA = os.getenv('MARIADB')
+MARIAPASS = os.getenv('MARIAPASS')
+RABBIT = os.getenv('RABBITMQ')
+RABBITPASS = os.getenv('RABBITPASS')
 INQUEUE = os.getenv('INQUEUE')
 OUTQUEUE = os.getenv('OUTQUEUE')
 ```
@@ -395,26 +399,16 @@ spec:
       - name: api
         image: basesdedatos2/api
         env:
-          - name: DATAFROMK8S
-            value: "Hey"
-          - name: RABBITMQ
-            value: "databases-rabbitmq"
-          - name: RABBITQUEUE
-            value: "queue"
-          - name: RABBITPASS
-            valueFrom:
-              secretKeyRef:
-                name: databases-rabbitmq
-                key: rabbitmq-password
-                optional: false
-          - name: ESENDPOINT
+          - name: ELASTICURL
             value: quickstart-es-default
-          - name: ESPASSWORD
+          - name: ELASTICPASS
             valueFrom:
               secretKeyRef:
                 name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
+            - name: ESINDEXGROUPS
+                value: groups
 ```
 
 Por último, luego de tener los archivos listos para poder publicarlos a la nube, se siguen los siguientes comandos para poder realizarlo desde la terminal, donde el user es el nombre de usuario de Docker. Además, si la ejecución de comandos no sirve en la aplicación Lens, se puede utilizar el Command Prompt para ejecutarlos. 
@@ -425,6 +419,82 @@ docker build -t <user>/<aplicación> .   # Construye la imagen
 docker images                           # Permite revisar la lista de imágenes
 docker push <user>/<aplicación>         # Publica la imagen al repositorio en la nube
 helm install application application
+```
+
+#### Cuerpo lógico de los trabajadores
+Como se mencionó anteriormente, es necesario crear el comportamiento para ejecutar lo que se desea. Como primera instancia, se debe de establecer las conexiones tanto de la cola de mensajería de RabbitMQ, la base de datos de MariaDB y Elasticsearch como se muestra a continuación.
+
+```
+credentials = pika.PlainCredentials('user', RABBITPASS)
+parameters = pika.ConnectionParameters(host = RABBIT, credentials = credentials, heartbeat = 600)
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+channel.queue_declare(queue = INQUEUE)
+```
+
+```
+# Conexion al servicio de la base de datos Mariadb
+mariaDatabase = mariadb.connect(
+  host=HOSTMARIA,
+  port=3306,
+  user="user", 
+  password=MARIAPASS,
+  database="my_database"
+)
+```
+
+```
+# Conexion a Elasticsearch
+client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
+if client.indices.exists(index = ESINDEXGROUPS):
+    client.indices.delete(index = ESINDEXGROUPS)
+    print("Indice groups eliminado")
+client.indices.create(index = ESINDEXGROUPS)
+print("Indice groups creado")
+```
+
+Luego, se agregaron variables para manejo de variables o funciones para poder analizar y procesar los datos. Como por ejemplo, la función "callback" aplicados al trabajador downloader y details downloader, es utilizado para recibir mensajes de RabbitMQ y empieza a procesarlos. Dentro del trabajador API, se deben de crear diferentes funciones para poder realizar peticiones desde la aplicación Thunkable. 
+
+Con respecto a las tablas para guardar datos en MariaDB, se crearon las tablas desde el trabajador Loader con los siguientes comandos con su conexión con el fin de permitir la automatización de esta.
+
+```
+# Crear las tablas si no existen
+connection.execute("DROP TABLE IF EXISTS history")
+connection.execute("DROP TABLE IF EXISTS groups")
+connection.execute("DROP TABLE IF EXISTS jobs")
+connection.execute("CREATE TABLE jobs (\
+                      id INT NOT NULL AUTO_INCREMENT,\
+                      created DATETIME NOT NULL,\
+                      status VARCHAR(45) NOT NULL,\
+                      end DATETIME NOT NULL,\
+                      loader VARCHAR(45) NOT NULL,\
+                      grp_size INT NOT NULL,\
+                      PRIMARY KEY (id)\
+                  )")
+connection.execute("CREATE TABLE groups (\
+                      id INT NOT NULL AUTO_INCREMENT,\
+                      id_job INT NOT NULL,\
+                      created DATETIME NOT NULL,\
+                      end DATETIME,\
+                      stage VARCHAR(45) NOT NULL,\
+                      grp_number INT NOT NULL,\
+                      status VARCHAR(45),\
+                      offsetData INT NOT NULL,\
+                      PRIMARY KEY (id),\
+                      FOREIGN KEY (id_job) REFERENCES jobs(id)\
+                  )")
+connection.execute("CREATE TABLE history (\
+                    id INT NOT NULL AUTO_INCREMENT,\
+                    component VARCHAR(45) NOT NULL,\
+                    status VARCHAR(45) NOT NULL,\
+                    created DATETIME NOT NULL,\
+                    end DATETIME,\
+                    message TEXT,\
+                    grp_id INT NOT NULL,\
+                    stage VARCHAR(45) NOT NULL,\
+                    PRIMARY KEY (id),\
+                    FOREIGN KEY (grp_id) REFERENCES groups(id)\
+                )")
 ```
 
 ### Configuración de herramientas no automatizadas
@@ -483,6 +553,7 @@ El details_downloader una vez obtenido el mensaje, obtiene los documentos del gr
 La migración de datos entre plataformas es un sistema muy versátil de mensajería que puede ser aplicado a diferentes campos para obtener resultados temporizados, transición de datos y manipulación de la misma. Además, se pueden observar el rendimiento que conlleva cada procesamiento de los datos en la cola por medio de las aplicaciones de monitoreo.
 
 
+
 ### Referencias
 * [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1/tree/main/Proyecto-2)
 * Stefano (2020). Answer. Recuperado de [docker build failed at 'Downloading mariadb'](https://stackoverflow.com/questions/64521556/docker-build-failed-at-downloading-mariadb)
@@ -493,3 +564,14 @@ La migración de datos entre plataformas es un sistema muy versátil de mensajer
 * Reitz, K. (s.f.). Recuperado de [Source code for requests.exceptions](https://requests.readthedocs.io/en/latest/_modules/requests/exceptions/)
 * Alderman, D. (2020). Recuperado de [How to Use the Data Viewer List in Thunkable X - 2020 To Do App](https://www.youtube.com/watch?v=cccFpkrKPPw)
 * Thunkable (2022). Recuperado de [Thunkable Docs](https://docs.thunkable.com/)
+* Bitnami - MariaDB (2022) Github. Recuperdo de [MariaDB](https://github.com/bitnami/charts/tree/master/bitnami/mariadb/)
+* Bitnami - RabbitMQ (2022) Github. Recuperado de [Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq/)
+* Docker (2022). Docker Hub. Recuperado de [Docker Hub](https://hub.docker.com/)
+* Elastic (2022). Elastic Cloud on Kubernetes [2.4]. Recuperado de [Elasticsearch-operator](https://www.elastic.co/guide/en/cloud-on-k8s/2.4/k8s-overview.html)
+* Elastic - elasticsearch-docker (2017). Can't pull official images. Recuperado de [elasticsearch-docker](https://github.com/elastic/elasticsearch-docker/issues/89) 
+* Elasticsearch (2022). Python Elasticsearch Client. Recuperado de [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/v8.4.3/)
+* RabbitMQ (2022). RabbitMQ Tutorials. Recuperado de [RabbitMQ Tutorials](https://www.rabbitmq.com/getstarted.html)
+* Regolith (2021). How do I disable the SSL requirement in MySQL Workbench? Answer. Recuperado de [Regolith](https://stackoverflow.com/questions/69769563/how-do-i-disable-the-ssl-requirement-in-mysql-workbench
+)
+* Pika (2022). Introduction to Pika. Recuperado de [Pika](https://pika.readthedocs.io/en/stable/)
+* Elasticsearch (2022). Python Elasticsearch Client. Recuperado de [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/v8.5.1/)
