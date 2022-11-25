@@ -6,7 +6,7 @@
 * Miguel Ku Liang - 2019061913
 
 ## Guía de instalación
-El programa necesita de la aplicación "Docker" y habilitar el servicio de "Kubernetes" para tener un clúster inicial y básico, llamado "docker-desktop". La aplicación para controlar y monitorear el comportamiento del clúster de Docker se denomina "Lens". Además, se utilizarán dos carpetas para los servicios automatizados del proyecto tales como helm_charts y Docker_images.
+El programa necesita de la aplicación "Docker" y habilitar el servicio de "Kubernetes" para tener un clúster inicial y básico, llamado "docker-desktop". La aplicación para controlar y monitorear el comportamiento del clúster de Docker se denomina "Lens". Además, se utilizarán dos carpetas para los servicios automatizados del proyecto tales como helm_charts y Docker_images. Como herramientas de complemento, se utilizó la herramienta Postman para poder realizar pruebas de conexión de la API (interfaz de programación de aplicaciones).
 
 ### Instalación de helm_charts 
 Para el desarrollo de este proyecto, se van a implementar dos helm charts principales (databases y monitoring) y una para las aplicaciones implementadas en Docker (application, el cual será mencionado posteriormente). Dentro del helm chart databases, se utilizó la base de datos MariaDB y Elasticsearch. Dentro del helm chart monitoring, se utilizó Grafana y Prometheus junto con el operador de Elasticsearch (eck-operator). Antes de instalar todos componentes, se debe de ubicar o crear una carpeta cualquiera para luego descargar las dependencias necesarias. Ya con la carpeta seleccionada, se ingresa a la consola de comando y realizar un "cd" a dicha carpeta y ejecutar los siguientes comandos:  
@@ -451,21 +451,16 @@ kubectl port-forward databases-mariadb-0 3305:3306
 
 Dentro del MySQL Workbench, se ingresan los datos del servidor, tales como nombre del servidor, nombre de host (127.0.0.1), puerto (3305), nombre de usuario (root) y contraseña (mariadbpass). Además, se debe de deshabilitar el uso de SSL por medio de la pestaña "Advanced/Others:" y se le agrega useSSL=1. Luego se puede probar la conexión e ingresar a la base de datos.
 
-Luego de habilitar el acceso, se crearon dos tablas simples, una de persona y otra de carro. La tabla de persona tiene las siguientes columnas: identificador primario, nombre y cédula. La tabla de carro tiene las siguientes columnas: identificador primario, color, placa y llave foráneo a la tabla persona. 
-
 ## Preparación para ejecutar las pruebas
 
-Para realizar las pruebas primero debemos conectarnos con MariaDB y Elasticsearch para poder visualizar los datos que se estan insertando o cambiando. Para MariaDB, necesitaremos ejecutar el siguiente comando:
-```
-kubectl port-forward databases-mariadb-0 3305:3306
-```
+Para realizar las pruebas primero debemos conectarnos con MariaDB y Elasticsearch para poder visualizar los datos que se estan insertando o cambiando. Para MariaDB, se ejecuta el commando mencionado en el apartado anterior.
+
 Para Elasticsearch, iremos al "Lens" en el apartado de "Pods" donde buscaremos el nombre de "quickstart-kb-...". Dentro de esa opción, nos dirigimos a la parte de "Containers" en donde le daremos al botón de "Forward". Esto nos llevará a una página donde pondremos de username "elastic" y el password lo encontraremos en Lens en la parte de "Secrets" en la opción llamada "quickstart-es-elastic-user". Ahí podremos copiar la contraseña que nos permitirá ingresar a Elasticsearch. En la págino nos podemos dirigir a "Dev Tools" en el cual podremos ejecutar consultas a Elasticsearch.
 
-Una vez hecho esto, ejecutamos el comando:
+Una vez hecho esto, ejecutamos el comando para ejecutar el proyecto.
 ```
 helm install application application
 ```
-para ejecutar el proyecto.
 
 ## Pruebas
 
@@ -489,10 +484,12 @@ La migración de datos entre plataformas es un sistema muy versátil de mensajer
 
 
 ### Referencias
-* [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1)
-* https://stackoverflow.com/questions/64521556/docker-build-failed-at-downloading-mariadb
-* https://stackoverflow.com/questions/48310468/how-to-connect-to-database-using-scripting-language-inside-kubernetes-cluster
-* https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/
-* https://www.tutorialworks.com/kubernetes-pod-ip/
-* https://scrapeops.io/python-scrapy-playbook/scrapy-save-data-mysql/
-* https://requests.readthedocs.io/en/latest/_modules/requests/exceptions/
+* [Repositorio](https://github.com/StefWalker/BD2-TareaCorta1/tree/main/Proyecto-2)
+* Stefano (2020). Answer. Recuperado de [docker build failed at 'Downloading mariadb'](https://stackoverflow.com/questions/64521556/docker-build-failed-at-downloading-mariadb)
+* Anweb (2018). Answer (2). Recuperado de [How to connect to database using scripting language inside kubernetes cluster](https://stackoverflow.com/questions/48310468/how-to-connect-to-database-using-scripting-language-inside-kubernetes-cluster)
+* Vishal (2021). Recuperado de [Python MySQL Execute Parameterized Query using Prepared Statement](https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/)
+* Donohue, T. (2022). Recuperado de [How to get the IP address of a Pod in Kubernetes](https://www.tutorialworks.com/kubernetes-pod-ip/)
+* ScrapeOps (2022). Recuperado de [Saving Scraped Data To MySQL Database With Scrapy Pipelines](https://scrapeops.io/python-scrapy-playbook/scrapy-save-data-mysql/)
+* Reitz, K. (s.f.). Recuperado de [Source code for requests.exceptions](https://requests.readthedocs.io/en/latest/_modules/requests/exceptions/)
+* Alderman, D. (2020). Recuperado de [How to Use the Data Viewer List in Thunkable X - 2020 To Do App](https://www.youtube.com/watch?v=cccFpkrKPPw)
+* Thunkable (2022). Recuperado de [Thunkable Docs](https://docs.thunkable.com/)

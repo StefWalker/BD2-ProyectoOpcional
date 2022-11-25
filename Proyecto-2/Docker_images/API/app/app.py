@@ -2,26 +2,27 @@ import time
 import os
 import sys
 import pika
-import firebase_admin
-import json
-from firebase_admin import credentials
-from firebase_admin import db
+import requests
 from flask import Flask, jsonify, request
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 run_with_ngrok(app)
-
-cred = credentials.Certificate('adminSecret.json')
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://tareacorta2-2f12e-default-rtdb.firebaseio.com/'
-})
+CORS(app)
 
 @app.route('/', methods=["GET"])
-def getData():
-    ref = db.reference('/')
-    return jsonify(ref.get())
+def default():
+    apiPage = 0
+    count = 0
+    articles= []
+    while count < 100:
+        response = requests.get("https://api.biorxiv.org/covid19/" + str(apiPage)).json()
+        if response[]
+        count += response["messages"][0]["count"]
+        apiPage += 1
+        articles += response["collection"]
+    response["collection"] = articles
+    return response
 
 app.run()
