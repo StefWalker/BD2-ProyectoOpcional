@@ -532,7 +532,7 @@ Una vez hecho esto, ejecutamos el comando para ejecutar el proyecto.
 helm install application application
 ```
 
-## Pruebas
+## Pruebas de helm charts
 
 El loader crea un job inicial para crear los grupos de documentos que se van a trabajar. Cada nuevo grupo, genera un mensaje que es publicado a la cola de salida del loader. Este mensaje contiene el id del job y el número de grupo.
 
@@ -548,6 +548,26 @@ GET groups/_search
 podemos revisar estos documentos.
 
 El details_downloader una vez obtenido el mensaje, obtiene los documentos del grupo correspondiente en Elasticsearch para que por medio de los campos "rel_doi" y "rel_site" obtenga los detalles de cada documento. Este luego publica estos documentos al índice "groups de Elasticsearch y podremos consultarlos utilizando el mismo comando mencionado anteriormente. Además, podremos buscar la llave "details" para visualizar estos detalles que fueron agregados.
+
+## Pruebas de API
+Como se mencionó anteriormente, se utilizó la herramienta Postman para probar de forma local el Flask de Python para verificar las entradas y salidas del API, de esta forma, se puede asegurar el correcto flujo como, por ejemplo, utilizar la URL de 127.0.0.1/5000 (puerto de salida de la API de Python) con una extensión /user con el siguiente formato como cuerpo de la petición para añadir un usuario a la base de datos de Firebase con el fin de almacenar la cantidad de "Likes" por usuario.
+
+```
+{
+  "id": <id generado por Firebase>,
+  "email": <email ingresado por el usuario>
+}
+```
+
+De la misma manera, se puede utilizar el mismo URL pero con extensión /addLike/1, siendo 1 un ID de usuario con el siguiente cuerpo para almacenar el articulo con like del usuario. 
+
+```
+{
+  "title": <titulo del articulo>,
+  "auth": <lista de autores>,
+  "abs": <abstract>
+}
+```
 
 ## Conclusión
 La migración de datos entre plataformas es un sistema muy versátil de mensajería que puede ser aplicado a diferentes campos para obtener resultados temporizados, transición de datos y manipulación de la misma. Además, se pueden observar el rendimiento que conlleva cada procesamiento de los datos en la cola por medio de las aplicaciones de monitoreo.
