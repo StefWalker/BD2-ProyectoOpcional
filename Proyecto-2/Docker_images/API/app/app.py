@@ -1,7 +1,9 @@
 import time
+import datetime
 import os
 import sys
 import pika
+import re
 import requests
 import firebase_admin
 from firebase_admin import credentials
@@ -22,17 +24,23 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://tareacorta2-2f12e-default-rtdb.firebaseio.com/'
 })
 
-@app.route('/', methods=["GET"])
+@app.route('/search', methods=["POST"])
 def default():
     apiPage = 0
     count = 0
     articles= []
-    while count < 100:
+    search = request.json["data"]
+    while count < 1:
         response = requests.get("https://api.biorxiv.org/covid19/" + str(apiPage)).json()
-        count += response["messages"][0]["count"]
+        if apiPage == response["messages"][0]["total"]:
+            break
+        if re.search(search.lower(), response["collection"][0]["rel_title"].lower()) != None:
+            articles += [response["collection"][0]]
+            count += 1
         apiPage += 1
-        articles += response["collection"]
     response["collection"] = articles
+    print(len(articles))
+    response["messages"][0]["total"] = apiPage + 1
     return response
 
 @app.route('/addLike/<data>', methods=["POST"])
