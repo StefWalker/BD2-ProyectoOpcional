@@ -67,6 +67,7 @@ def callback(ch, method, properties, body):
                     if response["messages"][0]["status"] != "ok":
                         break
                     documents.append(response)
+                    print("Documentos obtenidos de " + BIORXIV + str(i))
             except ConnectionError as e:
                 errorReq = True
                 errorMsg = "Error en la conexion: " + str(e)

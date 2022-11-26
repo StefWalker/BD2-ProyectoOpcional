@@ -68,7 +68,7 @@ def callback(ch, method, properties, body):
                         rel_site = data["rel_site"].lower()
                         details = requests.get(BIORXIV_DETAILS + rel_site + "/" + rel_doi).json()
                         data["details"] = details
-                        print("Detalles agregados de rel_site: " + rel_site + " y rel_doi: " + rel_doi)
+                        print("Detalles obtenidos de rel_site: " + rel_site + " y rel_doi: " + rel_doi)
             except ConnectionError as e:
                 errorReq = True
                 errorMsg = "Error en la conexion: " + str(e)
