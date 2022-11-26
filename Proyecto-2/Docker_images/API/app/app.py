@@ -40,7 +40,26 @@ def default():
         apiPage += 1
     response["collection"] = articles
     print(len(articles))
-    response["messages"][0]["total"] = apiPage + 1
+    response["messages"][0]["total"] = apiPage
+    return response
+
+@app.route('/more', methods=["POST"])
+def defaultMore():
+    apiPage = int(request.json["offset"])
+    count = 0
+    articles= []
+    search = request.json["data"]
+    while count < 1:
+        response = requests.get("https://api.biorxiv.org/covid19/" + str(apiPage)).json()
+        if apiPage == response["messages"][0]["total"]:
+            break
+        if re.search(search.lower(), response["collection"][0]["rel_title"].lower()) != None:
+            articles += [response["collection"][0]]
+            count += 1
+        apiPage += 1
+    response["collection"] = articles
+    print(len(articles))
+    response["messages"][0]["total"] = apiPage
     return response
 
 @app.route('/addLike/<data>', methods=["POST"])
