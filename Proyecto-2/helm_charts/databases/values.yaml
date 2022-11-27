@@ -1,5 +1,6 @@
   enableRabbitMQ: true
   enableMariaDB: true
+  enableElasticsearchExporter: true
 
   rabbitmq:
     auth:
@@ -22,3 +23,8 @@
       enabled: true
       serviceMonitor:
         enabled: true
+
+  # -- Cambios a los valores del exportador de datos de Elasticsearch
+  prometheus-elasticsearch-exporter:
+    serviceMonitor:
+      enabled: true

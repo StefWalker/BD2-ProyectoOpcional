@@ -106,3 +106,19 @@ GET groups/_search
               "match_all": {}
     }
 }
+
+
+grafana -> settings -> data sources -> add data source -> prometheus 
+
+-> url = http://monitoring-kube-prometheus-prometheus:9090 -> dashboards -> import
+
+-> se va a https://grafana.com/grafana/dashboards/6239-mysql/ -> copy id 
+
+-> lo pone en import via grafana.com -> load -> prometheus como data source abajo 
+
+-> import -> hace imports para https://grafana.com/grafana/dashboards/10863-rabbit-monitoring/
+
+-> y https://grafana.com/grafana/dashboards/6483-elasticsearch/
+
+
+

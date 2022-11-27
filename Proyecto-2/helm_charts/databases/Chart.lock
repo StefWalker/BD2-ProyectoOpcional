@@ -5,5 +5,8 @@ dependencies:
 - name: mariadb
   repository: https://charts.bitnami.com/bitnami
   version: 11.3.3
-digest: sha256:66085e8c9146bf1486727fcecf78a76a9a17f8eeeef03e8fcca7438bbcf2158c
-generated: "2022-11-22T14:29:32.8810228-06:00"
+- name: prometheus-elasticsearch-exporter
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 4.14.0
+digest: sha256:00f29e0a7f8f9d4b57b8717fc02718317db4b2b97dd2a757c09e541250ee50d0
+generated: "2022-11-26T20:14:23.4355902-06:00"
