@@ -9,6 +9,7 @@ from firebase_admin import db
 from flask import Flask, jsonify, request
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
+from elasticsearch import Elasticsearch
 
 # Instancia de la aplicación con flask, ngrok y cors
 app = Flask(__name__)
@@ -135,19 +136,30 @@ def resetIndex():
     print("Indice groups creado")
 
 # Busca si word esta en rel_title
-def search(word):
-    result = es.search(index = ESINDEXGROUPS, body = {"query":{"match_all":{}}})["hits"]["hits"]
+@app.route('/elastic', methods=["POST"])
+def search():
+    word = request.json["data"]
+    result = client.search(index = ESINDEXGROUPS, body = {"query":{"match_all":{}}})["hits"]["hits"]
     docs = []
+    count = 0
     for search in result:
+        if count == 10:
+            break
         doc = search["_source"]["docs"]
         for article in doc:
+            if count == 10:
+                break
             collection = article["collection"]
             for data in collection:
+                if count == 10:
+                    break
                 title = data["rel_title"]
                 if word in title:
                     docs.append(article)
+                    count += 1
                     print("Articulo agregado: " + title)
-    return docs
+    response = "{\"articles\":\"{" + str(docs) + "}\"}"
+    return jsonify(response)
 
 @app.route('/', methods=["GET"])
 def init():
