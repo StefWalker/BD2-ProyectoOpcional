@@ -53,6 +53,4 @@ spec:
                 key: elastic
                 optional: false
           - name: ELASTICINDEX
-            value: jobs
-          - name: ELASTICINDEX
             value: groups
