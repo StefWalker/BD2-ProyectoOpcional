@@ -20,7 +20,8 @@ kubectl apply -f producer.yaml
 en la carpeta consumer:
 
 
-
+docker build -t basesdedatos2/api .
+docker push basesdedatos2/api
 
 
 docker build -t basesdedatos2/loader .

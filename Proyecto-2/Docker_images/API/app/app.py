@@ -11,6 +11,7 @@ from flask import Flask, jsonify, request, Response
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
 from elasticsearch import Elasticsearch
+from requests.exceptions import *
 
 # Metricas personalizadas
 metrics = {}
@@ -106,22 +107,28 @@ def searchMore():
 # Request para añadir un artículo con like del usuario a Firebase
 @app.route('/addLike/<data>', methods=["POST"])
 def addLike(data):
-    # Global JSON path
-    ref = db.reference('/Users/' + str(data))
-    # Get all the data from the reference
-    user = ref.get()
     try:
-        # Actualiza la lista de artículos
-        ref.update({
-            'articles': user["articles"] + [{"title": request.json['title'], "auth":request.json['auth'], "abs":request.json['abs']}]
-        })
-    except:
-        # Crea una lista de artículos si no existe
-        ref.update({
-            'articles': [{"title": request.json['title'], "auth":request.json['auth'], "abs":request.json['abs']}]
-        })
-    metrics['requests'].inc()
-    return jsonify(ref.get())
+        # Global JSON path
+        ref = db.reference('/Users/' + str(data))
+        # Get all the data from the reference
+        user = ref.get()
+        try:
+            # Actualiza la lista de artículos
+            ref.update({
+                'articles': user["articles"] + [{"title": request.json['title'], "auth":request.json['auth'], "abs":request.json['abs']}]
+            })
+        except:
+            # Crea una lista de artículos si no existe
+            ref.update({
+                'articles': [{"title": request.json['title'], "auth":request.json['auth'], "abs":request.json['abs']}]
+            })
+        metrics['requests'].inc()
+        return jsonify(ref.get())
+    except RequestException as e:
+        metrics['error'].inc()
+        return jsonify("Error: " + str(e))
+    
+
 # Request para agregar un job a MariaDB
 @app.route('/addGrp/<data>', methods=["POST"])
 def addGrp(data):
