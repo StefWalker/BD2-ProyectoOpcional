@@ -609,3 +609,4 @@ La migración de datos entre plataformas es un sistema muy versátil de mensajer
 )
 * Pika (2022). Introduction to Pika. Recuperado de [Pika](https://pika.readthedocs.io/en/stable/)
 * Elasticsearch (2022). Python Elasticsearch Client. Recuperado de [Python Elasticsearch Client](https://elasticsearch-py.readthedocs.io/en/v8.5.1/)
+* That DevOps Guy (2019). [Introduction to Python monitoring with Prometheus](https://www.youtube.com/watch?v=HzEiRwJP6ag)

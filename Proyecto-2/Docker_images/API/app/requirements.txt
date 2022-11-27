@@ -5,3 +5,4 @@ flask-cors
 firebase-admin
 mariadb
 elasticsearch
+prometheus-client

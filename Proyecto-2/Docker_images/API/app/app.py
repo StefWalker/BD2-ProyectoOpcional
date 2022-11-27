@@ -1,15 +1,22 @@
 import datetime
 import os
 import re
-import requests
 import mariadb
+import prometheus_client
+from prometheus_client import Counter
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
 from elasticsearch import Elasticsearch
+
+# Metricas personalizadas
+metrics = {}
+metrics['requests'] = Counter('total_requests', 'The total number of processed requests')
+metrics['error'] = Counter('total_request_error', 'The Total number of error requests')
+metrics['docs'] = Counter('total_docs', 'The Total number of documents searched')
 
 # Instancia de la aplicación con flask, ngrok y cors
 app = Flask(__name__)
@@ -61,6 +68,8 @@ def search():
                     docs.append(data)
                     count += 1
                     print("Articulo agregado: " + data["rel_title"])
+    metrics['requests'].inc()
+    metrics['docs'].inc(count)
     return jsonify(docs)
 
 # Request para buscar otros 10 artículos relacionados
@@ -90,6 +99,8 @@ def searchMore():
                     print("Articulo agregado: " + data["rel_title"])
                 if data["rel_title"] == last:
                     insertFlag = True
+    metrics['requests'].inc()
+    metrics['docs'].inc(count)
     return jsonify(docs)
 
 # Request para añadir un artículo con like del usuario a Firebase
@@ -109,8 +120,8 @@ def addLike(data):
         ref.update({
             'articles': [{"title": request.json['title'], "auth":request.json['auth'], "abs":request.json['abs']}]
         })
+    metrics['requests'].inc()
     return jsonify(ref.get())
-
 # Request para agregar un job a MariaDB
 @app.route('/addGrp/<data>', methods=["POST"])
 def addGrp(data):
@@ -133,10 +144,20 @@ def addGrp(data):
                       VALUES (?,?,?,?,?)",(datetime.datetime.now(), datetime.datetime.now(), 'In progress', str(IP), int(data)))
     mariaDatabase.commit()
     mariaDatabase.close()
+    metrics['requests'].inc()
     return jsonify(data)
 
 @app.route('/', methods=["GET"])
 def init():
+    metrics['requests'].inc()
     return jsonify("Journal Search Platform (JSP)'s API")
+
+@app.route('/metrics')
+def requests_count():
+    results = []
+    # Muestra las metricas personalizadas
+    for k,v in metrics.items():
+        results.append(prometheus_client.generate_latest(v))
+    return Response(results, mimetype="text/plain")
 
 app.run()
