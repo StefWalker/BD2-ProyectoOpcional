@@ -107,4 +107,36 @@ def addGrp(data):
     print(data)
     return jsonify(data)
 
+# Variables de entorno
+ELASTICURL = os.getenv('ELASTICURL')
+ELASTICPASS = os.getenv('ELASTICPASS')
+ESINDEXGROUPS = os.getenv('ESINDEXGROUPS')
+
+# Conexion a Elasticsearch
+client = Elasticsearch("https://" + ELASTICURL + ":9200", basic_auth = ("elastic", ELASTICPASS), verify_certs = False)
+
+# Limpia los datos del indice
+def resetIndex():
+    if client.indices.exists(index = ESINDEXGROUPS):
+        client.indices.delete(index = ESINDEXGROUPS)
+        print("Indice groups eliminado")
+    client.indices.create(index = ESINDEXGROUPS)
+    print("Indice groups creado")
+
+# Busca si word esta en rel_title
+def search(word):
+    result = es.search(index = ESINDEXGROUPS, body = {"query":{"match_all":{}}})["hits"]["hits"]
+    docs = []
+    for search in result:
+        doc = search["_source"]["docs"]
+        for article in doc:
+            collection = article["collection"]
+            for data in collection:
+                title = data["rel_title"]
+                if word in title:
+                    docs.append(article)
+                    print("Articulo agregado: " + title)
+    return docs
+
+
 app.run()

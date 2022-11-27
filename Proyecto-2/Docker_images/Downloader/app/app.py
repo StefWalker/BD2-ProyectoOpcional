@@ -133,11 +133,11 @@ except Error as e:
 
 # Conexion a Elasticsearch
 client = Elasticsearch("https://" + ESENDPOINT + ":9200", basic_auth = ("elastic", ESPASSWORD), verify_certs = False)
-if client.indices.exists(index = ESINDEXGROUPS):
-    client.indices.delete(index = ESINDEXGROUPS)
-    print("Indice groups eliminado")
-client.indices.create(index = ESINDEXGROUPS)
-print("Indice groups creado")
+#if client.indices.exists(index = ESINDEXGROUPS):
+#    client.indices.delete(index = ESINDEXGROUPS)
+#    print("Indice groups eliminado")
+#client.indices.create(index = ESINDEXGROUPS)
+#print("Indice groups creado")
 
 # Conexion a RabbitMQ
 credentials = pika.PlainCredentials('user', RABBIT_MQ_PASSWORD)
