@@ -32,3 +32,7 @@ dependencies:
   version: "11.3.3"
   repository: "https://charts.bitnami.com/bitnami"
   condition: enableMariaDB
+- name: prometheus-elasticsearch-exporter    
+  version: "4.14.0"
+  repository: "https://prometheus-community.github.io/helm-charts"
+  condition: enableElasticsearchExporter
