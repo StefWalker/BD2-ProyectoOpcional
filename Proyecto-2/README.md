@@ -527,16 +527,18 @@ Para realizar las pruebas primero debemos conectarnos con MariaDB y Elasticsearc
 
 Para Elasticsearch, iremos al "Lens" en el apartado de "Pods" donde buscaremos el nombre de "quickstart-kb-...". Dentro de esa opción, nos dirigimos a la parte de "Containers" en donde le daremos al botón de "Forward". Esto nos llevará a una página donde pondremos de username "elastic" y el password lo encontraremos en Lens en la parte de "Secrets" en la opción llamada "quickstart-es-elastic-user". Ahí podremos copiar la contraseña que nos permitirá ingresar a Elasticsearch. En la págino nos podemos dirigir a "Dev Tools" en el cual podremos ejecutar consultas a Elasticsearch.
 
-Una vez hecho esto, ejecutamos el comando para ejecutar el proyecto.
+Una vez hecho esto, ejecutamos el comando para ejecutar el proyecto con sus respectivas aplicaciones.
+
 ```
 helm install application application
 ```
 
 ## Pruebas de helm charts
 
-El loader crea un job inicial para crear los grupos de documentos que se van a trabajar. Cada nuevo grupo, genera un mensaje que es publicado a la cola de salida del loader. Este mensaje contiene el id del job y el número de grupo.
+El pod loader crea un job inicial para crear los grupos de documentos en los que se van a trabajar en el pod downloader y detail downloader. Cada nuevo grupo, genera un mensaje que es publicado a la cola de salida del loader. Este mensaje contiene el id del job y el número de grupo.
 
 Este mensaje es recibido por la cola de entrada del downloader. Este luego descarga los documentos del endpoint "https://api.biorxiv.org/covid19/" hasta los documentos necesarios de cada grupo. Une vez descargado los documentos, los publica al índice "groups" de Elasticsearch y notifica al details_downloader por medio del mensaje inicial publicado en su cola de salida. Por medio de la consulta:
+
 ```
 GET groups/_search
 {
@@ -550,23 +552,35 @@ podemos revisar estos documentos.
 El details_downloader una vez obtenido el mensaje, obtiene los documentos del grupo correspondiente en Elasticsearch para que por medio de los campos "rel_doi" y "rel_site" obtenga los detalles de cada documento. Este luego publica estos documentos al índice "groups de Elasticsearch y podremos consultarlos utilizando el mismo comando mencionado anteriormente. Además, podremos buscar la llave "details" para visualizar estos detalles que fueron agregados.
 
 ## Pruebas de API
-Como se mencionó anteriormente, se utilizó la herramienta Postman para probar de forma local el Flask de Python para verificar las entradas y salidas del API, de esta forma, se puede asegurar el correcto flujo como, por ejemplo, utilizar la URL de 127.0.0.1/5000 (puerto de salida de la API de Python) con una extensión /user con el siguiente formato como cuerpo de la petición para añadir un usuario a la base de datos de Firebase con el fin de almacenar la cantidad de "Likes" por usuario.
+Como se mencionó anteriormente, se utilizó la herramienta Postman para probar de forma local el Flask con Ngrok de Python para verificar las entradas y salidas del API, de esta forma, se puede asegurar el correcto flujo como, por ejemplo, utilizar la URL de 127.0.0.1/5000 (puerto de salida de la API de Python) o el autogenerado de Ngrok con una extensión /elastic (llama a la base de datos de Elasticsearch para realizar la búsqueda con el texto deseado), /elasticMore (lo mismo que el anterior pero busca más artículos), /addLike/data (ingresar en FireBase el artículo con like) y /addGrp/data (ingresa un nuevo job a MariabDB). A continuación se mostrarán los casos de prueba de cada enlace con su respectivo cuerpo de entrada.
 
 ```
-{
-  "id": <id generado por Firebase>,
-  "email": <email ingresado por el usuario>
+- http://127.0.0.1:5000/
+
+Salida: "Journal Search Platform (JSP)'s API"
+
+- http://127.0.0.1:5000/elastic
+
+Cuerpo: {
+  "data": <texto a buscar>
 }
-```
+Salida: 10 artículos relacionados al texto ingresado
 
-De la misma manera, se puede utilizar el mismo URL pero con extensión /addLike/1, siendo 1 un ID de usuario con el siguiente cuerpo para almacenar el articulo con like del usuario. 
+- http://127.0.0.1:5000/elasticMore
 
-```
-{
-  "title": <titulo del articulo>,
-  "auth": <lista de autores>,
-  "abs": <abstract>
+Cuerpo: {
+  "data": <texto a buscar>
+  "offset": <último título registrado>
 }
+Salida: 10 artículos extra relacionados al texto ingresado
+
+- http://127.0.0.1:5000/addLike/userId
+
+Salida: Resultado de los artículos del usuario
+
+- http://127.0.0.1:5000/addGrp/int
+
+Salida: String del entero del tamaño del grupo deseado del nuevo trabajo
 ```
 
 ## Conclusión
