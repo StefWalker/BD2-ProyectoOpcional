@@ -3,3 +3,4 @@ flask
 flask-ngrok
 flask-cors
 firebase-admin
+mariadb

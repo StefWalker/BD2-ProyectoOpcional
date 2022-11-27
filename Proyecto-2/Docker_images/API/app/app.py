@@ -1,23 +1,18 @@
-import time
 import datetime
 import os
-import sys
-import pika
 import re
 import requests
+import mariadb
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from flask import Flask, jsonify, request
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
-from flask import Flask, jsonify, request
-from flask_ngrok import run_with_ngrok
-from flask_cors import CORS
 
 # Instancia de la aplicación con flask, ngrok y cors
 app = Flask(__name__)
-#run_with_ngrok(app)
+run_with_ngrok(app)
 CORS(app)
 
 # Se obtienen ingresan las credenciales de FireBase para usar la base de datos personal
@@ -37,7 +32,7 @@ def default():
     articles= []
     # Palabra a buscar en los títulos
     search = request.json["data"]
-    while count < 1:
+    while count < 10:
         # Se accede al API de Bio 
         response = requests.get("https://api.biorxiv.org/covid19/" + str(apiPage)).json()
         # Si el ciclo pasa del todal de artículos, se termina
@@ -50,7 +45,6 @@ def default():
         # Cambio de página
         apiPage += 1
     response["collection"] = articles
-    print(len(articles))
     response["messages"][0]["total"] = apiPage
     return response
 
@@ -65,7 +59,7 @@ def defaultMore():
     articles= []
     # Palabra a buscar en los títulos
     search = request.json["data"]
-    while count < 1:
+    while count < 10:
         # Se accede al API de Bio 
         response = requests.get("https://api.biorxiv.org/covid19/" + str(apiPage)).json()
         # Si el ciclo pasa del todal de artículos, se termina
@@ -78,7 +72,6 @@ def defaultMore():
         # Cambio de página
         apiPage += 1
     response["collection"] = articles
-    print(len(articles))
     response["messages"][0]["total"] = apiPage
     return response
 
@@ -104,7 +97,25 @@ def addLike(data):
 # Request para agregar un job a MariaDB
 @app.route('/addGrp/<data>', methods=["POST"])
 def addGrp(data):
-    print(data)
+    # Variables de entorno
+    IP = os.getenv('POD_IP')
+    HOSTMARIA = os.getenv('MARIADB')
+    MARIAPASS = os.getenv('MARIAPASS')
+
+    # Conexion al servicio de la base de datos Mariadb
+    mariaDatabase = mariadb.connect(
+        host=HOSTMARIA,
+        port=3306,
+        user="user", 
+        password=MARIAPASS,
+        database="my_database"
+    )
+    connection = mariaDatabase.cursor()
+    # Crear request para insertar el grupo
+    connection.execute("INSERT INTO jobs(created,end,status,loader,grp_size) \
+                      VALUES (?,?,?,?,?)",(datetime.datetime.now(), datetime.datetime.now(), 'In progress', str(IP), int(data)))
+    mariaDatabase.commit()
+    mariaDatabase.close()
     return jsonify(data)
 
 # Variables de entorno
@@ -138,5 +149,8 @@ def search(word):
                     print("Articulo agregado: " + title)
     return docs
 
+@app.route('/', methods=["GET"])
+def init():
+    return jsonify("Journal Search Platform (JSP)'s API")
 
 app.run()

@@ -18,6 +18,18 @@ spec:
       - name: api
         image: basesdedatos2/api
         env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: MARIADB
+            value: "databases-mariadb"
+          - name: MARIAPASS
+            valueFrom:
+              secretKeyRef:
+                name: databases-mariadb
+                key: mariadb-password
+                optional: false
           - name: ELASTICURL
             value: quickstart-es-default
           - name: ELASTICPASS
@@ -26,5 +38,5 @@ spec:
                 name: quickstart-es-elastic-user
                 key: elastic
                 optional: false
-            - name: ESINDEXGROUPS
-                value: groups
+          - name: ESINDEXGROUPS
+            value: groups
